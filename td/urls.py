@@ -1,6 +1,8 @@
-from . import views
 from django.urls import path
+from td.views import IndexView
+
+app_name = 'td'
 
 urlpatterns = [
-    path('', views.index, name="index"),
+    path('', IndexView.as_view(), name="index"),
 ]
