@@ -1,5 +1,12 @@
 {% extends 'td/base.html' %}
 
 {% block body %}
-    <h1 id="test">Hello world</h1>
+    <h1 id="test">Tasks</h1>
+    {% if tasks %}
+        {% for task in tasks %}
+            <p>{{ task.desc }}</p>
+        {% endfor %}
+    {% else %}
+        <p>No tasks...</p>
+    {% endif %}
 {% endblock %}
