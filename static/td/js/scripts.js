@@ -159,6 +159,9 @@ function hideB(id) {
 
 function createTask() {
     let input = document.getElementById('inputC');
+    if (input.value.length < 1) {
+        return console.log('1 or more characters');
+    }
     let postUrl = createUrl;
 
     postTask(postUrl, {data: input.value}, 'POST')
@@ -167,13 +170,17 @@ function createTask() {
                 let task = blueprintTask(data.task[0]);
                 tasksNC.insertBefore(task, tasksNC.children[0]);
                 tasks.unshift(data.task[0]);
+                input.value = '';
             }
         });
 }
 
 function updateTask(id) {
-    let postUrl = id + '/' + updateUrl;
     let input = document.getElementById('input'+id);
+    if (input.value.length < 1) {
+        return console.log('1 or more characters');
+    }
+    let postUrl = id + '/' + updateUrl;
     let desc = document.getElementById('p'+id);
     let task = document.getElementById(id);
 

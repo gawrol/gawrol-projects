@@ -27,6 +27,8 @@ class ReadView(View):
 class CreateView(View):
     def post(self, request):
         desc = json.loads(request.body)['data']
+        if len(desc) < 1:
+            return JsonResponse({})
         task = Task(desc=desc)
         task.save()
         taskN = list(Task.objects.filter(desc=desc).values())
@@ -38,6 +40,8 @@ class UpdateView(View):
         # json.loads() to convert from JSON to Python dictionary
         # [''] to read key and its value
         desc = json.loads(request.body)['data']
+        if len(desc) < 1:
+            return JsonResponse({})
         task = Task.objects.get(id=id)
         task.desc = desc
         task.save()
