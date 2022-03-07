@@ -9,6 +9,7 @@ const tasksNC = document.getElementById('tasksNC');
 const getUrl = 'read/';
 const stateUrl = 'state/';
 const updateUrl = 'update/';
+const deleteUrl = 'delete/';
 let tasks = {};
 
 async function getTasks(url = '') {
@@ -22,10 +23,11 @@ async function getTasks(url = '') {
 }
 
 // Example POST method implementation:
-async function postTask(url = '', data = {}) {
+async function postTask(url = '', data = {}, reqMETH = 'POST') {
     // Default options are marked with *
     const response = await fetch(url, {
-        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        // method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        method: reqMETH,
         mode: 'cors', // no-cors, *cors, same-origin
         cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
         credentials: 'same-origin', // include, *same-origin, omit
@@ -74,6 +76,15 @@ function populate() {
                         ru(tasks[i].id, false);
                     });
                     read.appendChild(updateB);
+                    // Delete button
+                    let deleteB = document.createElement('button');
+                    deleteB.id = 'db' + tasks[i].id
+                    deleteB.type = 'button';
+                    deleteB.innerHTML = 'Delete';
+                    deleteB.addEventListener("click", function() {
+                        deleteTask(tasks[i].id);
+                    });
+                    read.appendChild(deleteB);
                     // Add read div to task li
                     task.appendChild(read);
                 // Div for updating task
@@ -91,7 +102,7 @@ function populate() {
                     confirmU.type = 'button';
                     confirmU.innerHTML = 'Confirm';
                     confirmU.addEventListener("click", function() {
-                        update(tasks[i].id);
+                        updateTask(tasks[i].id);
                     });
                     change.appendChild(confirmU);
                     // Button for canceling update
@@ -110,7 +121,7 @@ function populate() {
                 else {
                     task.classList.add('state');
                     tasksC.appendChild(task);
-                    hideUB(tasks[i].id);
+                    hideB(tasks[i].id);
                 }
             } 
         })
@@ -131,21 +142,47 @@ function ru(id, cancel) {
     }
 }
 
-function hideUB(id) {
+function hideB(id) {
     let ub = document.getElementById('ub'+id);
     ub.classList.toggle('hide');
+    let db = document.getElementById('db'+id);
+    db.classList.toggle('hide');
 }
 
-function update(id) {
+function updateTask(id) {
     let postUrl = id + '/' + updateUrl;
     let input = document.getElementById('input'+id);
     let desc = document.getElementById('p'+id);
+    let task = document.getElementById(id);
 
-    postTask(postUrl, {data: input.value})
+    postTask(postUrl, {data: input.value}, 'PATCH')
         .then(data => {
             if (data.task.id == id) {
-                desc.innerHTML = data.task.desc;
+                // Update tasks dictionary desc
+                let objectId = id;
+                const taskIndex = tasks.findIndex( ({ id }) => id == objectId);
+                tasks[taskIndex].desc = data.task.desc;
+                // Update p description tag
+                desc.innerHTML = data.task.desc;     
+                // Put updated task on top of list
+                tasksNC.insertBefore(task, tasksNC.children[0]);
+                // Hide update div, show read div
                 ru(id, false);
+            }
+            else {
+                console.log('Task id from ajax request and server response doesnt match');
+            }
+        });
+}
+
+function deleteTask(id) {
+    let postUrl = id + '/' + deleteUrl;
+    let task = document.getElementById(id);
+
+    postTask(postUrl, {}, 'DELETE')
+        .then(data => {
+            if (data.task.id == id) {
+                task.remove();
             }
             else {
                 console.log('Task id from ajax request and server response doesnt match');
@@ -161,7 +198,7 @@ function state(id) {
         .then(data => {
             if (data.task.id == id) {
                 task.classList.toggle('state');
-                hideUB(id);
+                hideB(id);
                 if (data.task.state == true) {
                     tasksC.insertBefore(task, tasksC.children[0]);
                 }

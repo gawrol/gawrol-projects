@@ -32,7 +32,7 @@ class CreateView(View):
         return redirect(reverse('td:index'))
 
 class UpdateView(View):
-    def post(self, request, id):
+    def patch(self, request, id):
         # request.body to read incoming json
         # json.loads() to convert from JSON to Python dictionary
         # [''] to read key and its value
@@ -40,19 +40,28 @@ class UpdateView(View):
         task = Task.objects.get(id=id)
         task.desc = desc
         task.save()
-        task = {
+        context = {
             'id': task.id,
             'desc': task.desc, 
         }
-        return JsonResponse({'task': task})
+        return JsonResponse({'task': context})
+
+class DeleteView(View):
+    def delete(self, request, id):
+        task = Task.objects.get(id=id)
+        context = {
+            'id': task.id, 
+        }
+        task.delete()
+        return JsonResponse({'task': context})
 
 class StateView(View):
     def post(self, request, id):
         task = Task.objects.get(id=id)
         task.state = not task.state
         task.save()
-        task = {
+        context = {
             'id': task.id, 
             'state': task.state,
         }
-        return JsonResponse({'task': task})
+        return JsonResponse({'task': context})
