@@ -1,12 +1,29 @@
 {% extends 'td/base.html' %}
 
 {% block body %}
-    <h1 id="test">Tasks</h1>
-    {% if tasks %}
-        {% for task in tasks %}
-            <p>{{ task.desc }}</p>
-        {% endfor %}
-    {% else %}
-        <p>No tasks...</p>
-    {% endif %}
+    <h1>Add task</h1>
+    <form action="{% url 'td:create' %}" method="post">
+        {% csrf_token %}
+        <input type="text" name="desc">
+        <button type="submit">Add</button>
+    </form>
+    <h2>Tasks</h2>
+    <div>
+        <h3 id="headerNC">Not completed</h3>
+        <ul id="tasksNC">
+            {% if tasksNC %}
+                {% for taskNC in tasksNC %}
+                    <li id="task{{ taskNC.id }}" class="" onclick="state('{% url 'td:state' taskNC.id %}', {{ taskNC.id }})">{{ taskNC.desc }}</p>
+                {% endfor %}
+            {% endif %}
+        </ul>
+        <h3 id="headerC">Completed</h3>
+        <ul id="tasksC">
+            {% if tasksC %}
+                {% for taskC in tasksC %}
+                    <li id="task{{ taskC.id }}" class="state" onclick="state('{% url 'td:state' taskC.id %}', {{ taskC.id }})">{{ taskC.desc }}</p>
+                {% endfor %}
+            {% endif %}
+        </ul>
+    </div>
 {% endblock %}
