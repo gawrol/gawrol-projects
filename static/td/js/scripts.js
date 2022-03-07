@@ -45,28 +45,10 @@ async function postTask(url = '', data = {}, reqMETH = 'POST') {
     return response.json(); // parses JSON response into native JavaScript objects
 }
 
-function populate() {
-    getTasks(getUrl)
-        .then(data => {
-            tasks = data.tasks;
-            console.log(data.tasks);
-            for (let i = 0; i < tasks.length; i++) {
-                let task = blueprintTask(tasks[i]);
-                if (tasks[i].state == false) {
-                    tasksNC.appendChild(task);
-                }
-                else {
-                    task.classList.add('state');
-                    tasksC.appendChild(task);
-                    hideB(tasks[i].id);
-                }
-            } 
-        })
-}
-
 function blueprintTask(taskN) {
     let task = document.createElement('li');
     task.id = taskN.id;
+    task.classList.add('list-group-item');
     // Div for reading tasks
     let read = document.createElement('div');
     read.id = 'read' + taskN.id;
@@ -79,6 +61,7 @@ function blueprintTask(taskN) {
         let stateB = document.createElement('button');
         stateB.type = 'button';
         stateB.innerHTML = 'State';
+        stateB.classList.add('btn', 'btn-primary');
         stateB.addEventListener("click", function() {
             state(taskN.id)
         });
@@ -88,6 +71,7 @@ function blueprintTask(taskN) {
         updateB.id = 'ub' + taskN.id
         updateB.type = 'button';
         updateB.innerHTML = 'Update';
+        updateB.classList.add('btn', 'btn-secondary', 'mx-3');
         updateB.addEventListener("click", function() {
             ru(taskN.id, false);
         });
@@ -97,6 +81,7 @@ function blueprintTask(taskN) {
         deleteB.id = 'db' + taskN.id
         deleteB.type = 'button';
         deleteB.innerHTML = 'Delete';
+        deleteB.classList.add('btn', 'btn-danger');
         deleteB.addEventListener("click", function() {
             deleteTask(taskN.id);
         });
@@ -107,16 +92,25 @@ function blueprintTask(taskN) {
     let change = document.createElement('div');
     change.id = 'change' + taskN.id;
     change.classList.add('hide');
+        // Label for input
+        let labelD = document.createElement('label');
+        labelD.for = 'input' + taskN.id;
+        labelD.innerHTML = 'Update task'
+        labelD.classList.add('form-label');
+        change.appendChild(labelD);
         // Input for updating desc
         let inputD = document.createElement('input');
         inputD.id = 'input' + taskN.id;
         inputD.type = 'text';
         inputD.defaultValue = taskN.desc;
+        inputD.placeholder = 'Update your task...'
+        inputD.classList.add('form-control', 'mb-3');
         change.appendChild(inputD);
         // Button for confirming update
         let confirmU = document.createElement('button');
         confirmU.type = 'button';
         confirmU.innerHTML = 'Confirm';
+        confirmU.classList.add('btn', 'btn-success');
         confirmU.addEventListener("click", function() {
             updateTask(taskN.id);
         });
@@ -125,6 +119,7 @@ function blueprintTask(taskN) {
         let cancelU = document.createElement('button');
         cancelU.type = 'button';
         cancelU.innerHTML = 'Cancel';
+        cancelU.classList.add('btn', 'btn-secondary', 'mx-3');
         cancelU.addEventListener("click", function() {
             ru(taskN.id, true);
         });
@@ -141,12 +136,16 @@ function ru(id, cancel) {
 
     readDiv.classList.toggle('hide');
     changeDiv.classList.toggle('hide');
+
+    let task = document.getElementById(id);
+    task.classList.add('active');
     
     // If canceling update, return previous value to input
     if (cancel == true) {
         let objectId = id;
-        const task = tasks.find( ({ id }) => id == objectId);
-        document.getElementById('input'+id).value = task.desc;
+        const taskOld = tasks.find( ({ id }) => id == objectId);
+        document.getElementById('input'+id).value = taskOld.desc;
+        task.classList.remove('active');  
     }
 }
 
@@ -197,6 +196,7 @@ function updateTask(id) {
                 tasksNC.insertBefore(task, tasksNC.children[0]);
                 // Hide update div, show read div
                 ru(id, false);
+                task.classList.remove('active');  
             }
             else {
                 console.log('Task id from ajax request and server response doesnt match');
@@ -239,6 +239,25 @@ function state(id) {
                 console.log('Task id from ajax request and server response doesnt match');
             }
         });
+}
+
+function populate() {
+    getTasks(getUrl)
+        .then(data => {
+            tasks = data.tasks;
+            console.log(data.tasks);
+            for (let i = 0; i < tasks.length; i++) {
+                let task = blueprintTask(tasks[i]);
+                if (tasks[i].state == false) {
+                    tasksNC.appendChild(task);
+                }
+                else {
+                    task.classList.add('state');
+                    tasksC.appendChild(task);
+                    hideB(tasks[i].id);
+                }
+            } 
+        })
 }
 
 window.addEventListener('load', function () {
