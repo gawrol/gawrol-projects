@@ -26,10 +26,11 @@ class ReadView(View):
 
 class CreateView(View):
     def post(self, request):
-        desc = request.POST.get('desc')
+        desc = json.loads(request.body)['data']
         task = Task(desc=desc)
         task.save()
-        return redirect(reverse('td:index'))
+        taskN = list(Task.objects.filter(desc=desc).values())
+        return JsonResponse({'task': taskN})
 
 class UpdateView(View):
     def patch(self, request, id):

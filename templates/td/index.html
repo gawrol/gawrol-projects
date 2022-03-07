@@ -2,11 +2,11 @@
 
 {% block body %}
     <h1>Add task</h1>
-    <form action="{% url 'td:create' %}" method="post">
-        {% csrf_token %}
-        <input type="text" name="desc">
-        <button type="submit">Add</button>
-    </form>
+    <div>
+        <input type="text" id="inputC">
+        <button type="button" onclick="createTask()">Add</button>
+    </div>
+        
     <h2>Tasks</h2>
     <div>
         <h3>Not completed</h3>

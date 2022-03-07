@@ -7,9 +7,11 @@ const tasksC = document.getElementById('tasksC');
 const tasksNC = document.getElementById('tasksNC');
 
 const getUrl = 'read/';
-const stateUrl = 'state/';
+const createUrl = 'create/'
 const updateUrl = 'update/';
 const deleteUrl = 'delete/';
+const stateUrl = 'state/';
+
 let tasks = {};
 
 async function getTasks(url = '') {
@@ -47,74 +49,9 @@ function populate() {
     getTasks(getUrl)
         .then(data => {
             tasks = data.tasks;
-            console.log(tasks);
+            console.log(data.tasks);
             for (let i = 0; i < tasks.length; i++) {
-                let task = document.createElement('li');
-                task.id = tasks[i].id;
-                // Div for reading tasks
-                let read = document.createElement('div');
-                read.id = 'read' + tasks[i].id;
-                    // Inner text
-                    let p = document.createElement('p');
-                    p.id = 'p' + tasks[i].id;
-                    p.innerHTML = tasks[i].desc;
-                    read.appendChild(p);
-                    // State button
-                    let stateB = document.createElement('button');
-                    stateB.type = 'button';
-                    stateB.innerHTML = 'State';
-                    stateB.addEventListener("click", function() {
-                        state(tasks[i].id)
-                    });
-                    read.appendChild(stateB);
-                    // Update button
-                    let updateB = document.createElement('button');
-                    updateB.id = 'ub' + tasks[i].id
-                    updateB.type = 'button';
-                    updateB.innerHTML = 'Update';
-                    updateB.addEventListener("click", function() {
-                        ru(tasks[i].id, false);
-                    });
-                    read.appendChild(updateB);
-                    // Delete button
-                    let deleteB = document.createElement('button');
-                    deleteB.id = 'db' + tasks[i].id
-                    deleteB.type = 'button';
-                    deleteB.innerHTML = 'Delete';
-                    deleteB.addEventListener("click", function() {
-                        deleteTask(tasks[i].id);
-                    });
-                    read.appendChild(deleteB);
-                    // Add read div to task li
-                    task.appendChild(read);
-                // Div for updating task
-                let change = document.createElement('div');
-                change.id = 'change' + tasks[i].id;
-                change.classList.add('hide');
-                    // Input for updating desc
-                    let inputD = document.createElement('input');
-                    inputD.id = 'input' + tasks[i].id;
-                    inputD.type = 'text';
-                    inputD.defaultValue = tasks[i].desc;
-                    change.appendChild(inputD);
-                    // Button for confirming update
-                    let confirmU = document.createElement('button');
-                    confirmU.type = 'button';
-                    confirmU.innerHTML = 'Confirm';
-                    confirmU.addEventListener("click", function() {
-                        updateTask(tasks[i].id);
-                    });
-                    change.appendChild(confirmU);
-                    // Button for canceling update
-                    let cancelU = document.createElement('button');
-                    cancelU.type = 'button';
-                    cancelU.innerHTML = 'Cancel';
-                    cancelU.addEventListener("click", function() {
-                        ru(tasks[i].id, true);
-                    });
-                    change.appendChild(cancelU);
-                    // Add update div to task li
-                    task.appendChild(change);
+                let task = blueprintTask(tasks[i]);
                 if (tasks[i].state == false) {
                     tasksNC.appendChild(task);
                 }
@@ -125,6 +62,77 @@ function populate() {
                 }
             } 
         })
+}
+
+function blueprintTask(taskN) {
+    let task = document.createElement('li');
+    task.id = taskN.id;
+    // Div for reading tasks
+    let read = document.createElement('div');
+    read.id = 'read' + taskN.id;
+        // Inner text
+        let p = document.createElement('p');
+        p.id = 'p' + taskN.id;
+        p.innerHTML = taskN.desc;
+        read.appendChild(p);
+        // State button
+        let stateB = document.createElement('button');
+        stateB.type = 'button';
+        stateB.innerHTML = 'State';
+        stateB.addEventListener("click", function() {
+            state(taskN.id)
+        });
+        read.appendChild(stateB);
+        // Update button
+        let updateB = document.createElement('button');
+        updateB.id = 'ub' + taskN.id
+        updateB.type = 'button';
+        updateB.innerHTML = 'Update';
+        updateB.addEventListener("click", function() {
+            ru(taskN.id, false);
+        });
+        read.appendChild(updateB);
+        // Delete button
+        let deleteB = document.createElement('button');
+        deleteB.id = 'db' + taskN.id
+        deleteB.type = 'button';
+        deleteB.innerHTML = 'Delete';
+        deleteB.addEventListener("click", function() {
+            deleteTask(taskN.id);
+        });
+        read.appendChild(deleteB);
+        // Add read div to task li
+        task.appendChild(read);
+    // Div for updating task
+    let change = document.createElement('div');
+    change.id = 'change' + taskN.id;
+    change.classList.add('hide');
+        // Input for updating desc
+        let inputD = document.createElement('input');
+        inputD.id = 'input' + taskN.id;
+        inputD.type = 'text';
+        inputD.defaultValue = taskN.desc;
+        change.appendChild(inputD);
+        // Button for confirming update
+        let confirmU = document.createElement('button');
+        confirmU.type = 'button';
+        confirmU.innerHTML = 'Confirm';
+        confirmU.addEventListener("click", function() {
+            updateTask(taskN.id);
+        });
+        change.appendChild(confirmU);
+        // Button for canceling update
+        let cancelU = document.createElement('button');
+        cancelU.type = 'button';
+        cancelU.innerHTML = 'Cancel';
+        cancelU.addEventListener("click", function() {
+            ru(taskN.id, true);
+        });
+        change.appendChild(cancelU);
+        // Add update div to task li
+        task.appendChild(change);
+
+    return task;
 }
 
 function ru(id, cancel) {
@@ -147,6 +155,20 @@ function hideB(id) {
     ub.classList.toggle('hide');
     let db = document.getElementById('db'+id);
     db.classList.toggle('hide');
+}
+
+function createTask() {
+    let input = document.getElementById('inputC');
+    let postUrl = createUrl;
+
+    postTask(postUrl, {data: input.value}, 'POST')
+        .then(data => {
+            if (data.task.length == 1) {
+                let task = blueprintTask(data.task[0]);
+                tasksNC.insertBefore(task, tasksNC.children[0]);
+                tasks.unshift(data.task[0]);
+            }
+        });
 }
 
 function updateTask(id) {
