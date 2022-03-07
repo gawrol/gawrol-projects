@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views import View
@@ -31,8 +32,19 @@ class CreateView(View):
         return redirect(reverse('td:index'))
 
 class UpdateView(View):
-    def post(self, request):
-        return JsonResponse()
+    def post(self, request, id):
+        # request.body to read incoming json
+        # json.loads() to convert from JSON to Python dictionary
+        # [''] to read key and its value
+        desc = json.loads(request.body)['data']
+        task = Task.objects.get(id=id)
+        task.desc = desc
+        task.save()
+        task = {
+            'id': task.id,
+            'desc': task.desc, 
+        }
+        return JsonResponse({'task': task})
 
 class StateView(View):
     def post(self, request, id):
