@@ -8,13 +8,20 @@ from django.http import JsonResponse
 
 class IndexView(View):
     def get(self, request):
-        tasksC= list(Task.objects.filter(state=True).order_by('-updated_at').values())
-        tasksNC = list(Task.objects.filter(state=False).order_by('-updated_at').values())
-        context = {
-            'tasksC': tasksC,
-            'tasksNC': tasksNC,
-        }
-        return render(request, 'td/index.html', context=context)
+        # tasksC= list(Task.objects.filter(state=True).order_by('-updated_at').values())
+        # tasksNC = list(Task.objects.filter(state=False).order_by('-updated_at').values())
+        # context = {
+        #     'tasksC': tasksC,
+        #     'tasksNC': tasksNC,
+        # }
+        # return render(request, 'td/index.html', context=context)
+        return render(request, 'td/index.html')
+
+
+class ReadView(View):
+    def get(self, request):
+        tasks = list(Task.objects.all().order_by('-updated_at').values())
+        return JsonResponse({'tasks': tasks})
 
 class CreateView(View):
     def post(self, request):
@@ -23,10 +30,17 @@ class CreateView(View):
         task.save()
         return redirect(reverse('td:index'))
 
+class UpdateView(View):
+    def post(self, request):
+        return JsonResponse()
+
 class StateView(View):
     def post(self, request, id):
         task = Task.objects.get(id=id)
         task.state = not task.state
         task.save()
-        task = {'id': task.id, 'state': task.state}
+        task = {
+            'id': task.id, 
+            'state': task.state,
+        }
         return JsonResponse({'task': task})
