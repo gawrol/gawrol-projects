@@ -205,6 +205,25 @@ function updateTask(id) {
 }
 
 function deleteTask(id) {
+    const deleteB = document.getElementById('db'+id);
+    deleteB.innerHTML = 'OK?';
+    setTimeout(() => {
+        document.addEventListener("click", function deleteDetect(event) {
+            let clickedEl = event.target;    
+                if (clickedEl == deleteB) {
+                    deleteTaskConf(id);
+                    return;
+                }
+                else {
+                    deleteB.innerHTML = 'Delete';
+                    document.removeEventListener('click', deleteDetect);
+                    return;
+                }
+        });
+    }, 200);
+}
+
+function deleteTaskConf(id) {
     let postUrl = id + '/' + deleteUrl;
     let task = document.getElementById(id);
 
