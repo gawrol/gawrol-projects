@@ -11,6 +11,7 @@ const createUrl = 'create/'
 const updateUrl = 'update/';
 const deleteUrl = 'delete/';
 const stateUrl = 'state/';
+const logoutUrl = 'logout/';
 
 let tasks = {};
 
@@ -165,7 +166,10 @@ function createTask() {
 
     postTask(postUrl, {data: input.value}, 'POST')
         .then(data => {
-            if (data.task.length == 1) {
+            if (data.hasOwnProperty('error')) {
+                console.log(data.error)
+            }
+            else if (data.task.length == 1) {
                 let task = blueprintTask(data.task[0]);
                 tasksNC.insertBefore(task, tasksNC.children[0]);
                 tasks.unshift(data.task[0]);
@@ -185,7 +189,10 @@ function updateTask(id) {
 
     postTask(postUrl, {data: input.value}, 'PATCH')
         .then(data => {
-            if (data.task.id == id) {
+            if (data.hasOwnProperty('error')) {
+                console.log(data.error)
+            }
+            else if (data.task.id == id) {
                 // Update tasks dictionary desc
                 let objectId = id;
                 const taskIndex = tasks.findIndex( ({ id }) => id == objectId);
@@ -261,12 +268,42 @@ function state(id) {
 }
 
 function registerUser() {
-    let username = document.getElementById('username').value;
-    let password = document.getElementById('password').value;
+    let usernameR = document.getElementById('usernameR').value;
+    let passwordR = document.getElementById('passwordR').value;
+    if (usernameR.length < 1 || passwordR.length < 1) {
+        return console.log('1 or more characters');
+    }
 
-    postTask('', {data: {user: username, pass: password}}, 'POST')
+    postTask('', {data: {user: usernameR, pass: passwordR}}, 'POST')
         .then(data => {
-            console.log(data);
+            if (data.hasOwnProperty('error')) {
+                console.log(data.error)
+            } else {
+                window.location = data.redirect
+            } 
+        });
+}
+
+function loginUser() {
+    let usernameL = document.getElementById('usernameL').value;
+    let passwordL = document.getElementById('passwordL').value;
+    if (usernameL.length < 1 || passwordL.length < 1) {
+        return console.log('1 or more characters');
+    }
+
+    postTask('', {data: {user: usernameL, pass: passwordL}}, 'POST')
+        .then(data => {
+                if (data.hasOwnProperty('error')) {
+                    console.log(data.error)
+                } else {
+                    window.location = data.redirect
+                } 
+        });
+}
+
+function logoutUser() {
+    getTasks(logoutUrl)
+        .then(data => {
             window.location = data.redirect;
         });
 }
