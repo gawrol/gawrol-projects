@@ -6,14 +6,7 @@ const csrftoken = cookie.substring(cookie.indexOf('=') + 1);
 const tasksC = document.getElementById('tasksC');
 const tasksNC = document.getElementById('tasksNC');
 
-const getUrl = 'read/';
-const createUrl = 'create/'
-const updateUrl = 'update/';
-const deleteUrl = 'delete/';
-const stateUrl = 'state/';
-const logoutUrl = 'logout/';
-
-let tasks = {};
+let tasks = new Array();
 
 async function getTasks(url = '') {
     const response = await fetch(url, {
@@ -162,18 +155,24 @@ function createTask() {
     if (input.value.length < 1) {
         return console.log('1 or more characters');
     }
-    let postUrl = createUrl;
 
-    postTask(postUrl, {data: input.value}, 'POST')
+    postTask(createUrl, {data: input.value}, 'POST')
         .then(data => {
-            if (data.hasOwnProperty('error')) {
+            if (data.hasOwnProperty('login') || data.hasOwnProperty('redirect')) {
+                window.location = data.login;
+            }
+            else if (data.hasOwnProperty('error')) {
                 console.log(data.error)
             }
             else if (data.task.length == 1) {
                 let task = blueprintTask(data.task[0]);
                 tasksNC.insertBefore(task, tasksNC.children[0]);
-                tasks.unshift(data.task[0]);
                 input.value = '';
+                if (tasks.length > 1) {
+                    tasks.unshift(data.task[0]);
+                } else {
+                    tasks.push(data.task[0]);
+                }
             }
         });
 }
@@ -183,13 +182,15 @@ function updateTask(id) {
     if (input.value.length < 1) {
         return console.log('1 or more characters');
     }
-    let postUrl = id + '/' + updateUrl;
     let desc = document.getElementById('p'+id);
     let task = document.getElementById(id);
 
-    postTask(postUrl, {data: input.value}, 'PATCH')
+    postTask(updateUrl, {dataText: input.value, dataId: id}, 'PATCH')
         .then(data => {
-            if (data.hasOwnProperty('error')) {
+            if (data.hasOwnProperty('login') || data.hasOwnProperty('redirect')) {
+                window.location = data.login;
+            }
+            else if (data.hasOwnProperty('error')) {
                 console.log(data.error)
             }
             else if (data.task.id == id) {
@@ -231,13 +232,21 @@ function deleteTask(id) {
 }
 
 function deleteTaskConf(id) {
-    let postUrl = id + '/' + deleteUrl;
     let task = document.getElementById(id);
 
-    postTask(postUrl, {}, 'DELETE')
+    postTask(deleteUrl, {dataId: id}, 'DELETE')
         .then(data => {
-            if (data.task.id == id) {
+            if (data.hasOwnProperty('login') || data.hasOwnProperty('redirect')) {
+                window.location = data.login;
+            }
+            else if (data.hasOwnProperty('error')) {
+                console.log(data.error)
+            }
+            else if (data.task.id == id) {
                 task.remove();
+                let objectId = id;
+                const taskIndex = tasks.findIndex( ({ id }) => id == objectId);
+                tasks.splice(taskIndex, 1);
             }
             else {
                 console.log('Task id from ajax request and server response doesnt match');
@@ -246,19 +255,28 @@ function deleteTaskConf(id) {
 }
 
 function state(id) {
-    let postUrl = id + '/' + stateUrl;
     let task = document.getElementById(id);
 
-    postTask(postUrl, {})
+    postTask(stateUrl, {dataId: id}, 'PATCH')
         .then(data => {
-            if (data.task.id == id) {
+            if (data.hasOwnProperty('login') || data.hasOwnProperty('redirect')) {
+                window.location = data.login;
+            }
+            else if (data.hasOwnProperty('error')) {
+                console.log(data.error)
+            }
+            else if (data.task.id == id) {
                 task.classList.toggle('state');
                 hideB(id);
+                let objectId = id;
+                const taskIndex = tasks.findIndex( ({ id }) => id == objectId);
                 if (data.task.state == true) {
                     tasksC.insertBefore(task, tasksC.children[0]);
+                    tasks[taskIndex].state = true;
                 }
                 else if (data.task.state == false) {
                     tasksNC.insertBefore(task, tasksNC.children[0]);
+                    tasks[taskIndex].state = false;
                 }
             }
             else {
@@ -274,7 +292,7 @@ function registerUser() {
         return console.log('1 or more characters');
     }
 
-    postTask('', {data: {user: usernameR, pass: passwordR}}, 'POST')
+    postTask(registerUrl, {data: {user: usernameR, pass: passwordR}}, 'POST')
         .then(data => {
             if (data.hasOwnProperty('error')) {
                 console.log(data.error)
@@ -291,7 +309,7 @@ function loginUser() {
         return console.log('1 or more characters');
     }
 
-    postTask('', {data: {user: usernameL, pass: passwordL}}, 'POST')
+    postTask(loginUrl, {data: {user: usernameL, pass: passwordL}}, 'POST')
         .then(data => {
                 if (data.hasOwnProperty('error')) {
                     console.log(data.error)
@@ -309,8 +327,11 @@ function logoutUser() {
 }
 
 function populate() {
-    getTasks(getUrl)
+    getTasks(readUrl)
         .then(data => {
+            if (data.tasks.length == 0) {
+                return;
+            }
             tasks = data.tasks;
             console.log(data.tasks);
             for (let i = 0; i < tasks.length; i++) {
@@ -328,5 +349,7 @@ function populate() {
 }
 
 window.addEventListener('load', function () {
-    populate();
+    if (window.location.pathname == indexUrl){
+        populate();
+    }
 })

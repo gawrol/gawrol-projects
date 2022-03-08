@@ -6,46 +6,53 @@ from td.models import Task
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
-from django.core import serializers
 
 # Create your views here.
 
 class IndexView(View):
     def get(self, request):
-        # tasksC= list(Task.objects.filter(state=True).order_by('-updated_at').values())
-        # tasksNC = list(Task.objects.filter(state=False).order_by('-updated_at').values())
-        # context = {
-        #     'tasksC': tasksC,
-        #     'tasksNC': tasksNC,
-        # }
-        # return render(request, 'td/index.html', context=context)
         return render(request, 'td/index.html')
 
 
 class ReadView(View):
     def get(self, request):
-        tasks = list(Task.objects.all().order_by('-updated_at').values())
+        if request.user.is_authenticated:
+            owner = request.user
+            tasks = list(Task.objects.all().filter(owner=owner).order_by('-updated_at').values())
+        else:
+            tasks = list()
         return JsonResponse({'tasks': tasks})
 
 class CreateView(View):
     def post(self, request):
+        if not request.user.is_authenticated:
+            return JsonResponse({'login': reverse('td:my_login'), 'redirect': request.path})
         desc = json.loads(request.body)['data']
         if len(desc) < 1:
             return JsonResponse({'error': 'more or equal to 1 character'})
         task = Task(desc=desc)
+        task.owner = request.user
         task.save()
         taskN = list(Task.objects.filter(desc=desc).values())
         return JsonResponse({'task': taskN})
 
 class UpdateView(View):
-    def patch(self, request, id):
+    def patch(self, request):
+        if not request.user.is_authenticated:
+            return JsonResponse({'login': reverse('td:my_login'), 'redirect': request.path})
+        
+        id = json.loads(request.body)['dataId']
+        task = Task.objects.get(pk=id)
+        if request.user != task.owner:
+            return JsonResponse({'error': 'not owner of a task'})
+
         # request.body to read incoming json
         # json.loads() to convert from JSON to Python dictionary
         # [''] to read key and its value
-        desc = json.loads(request.body)['data']
+        desc = json.loads(request.body)['dataText']
         if len(desc) < 1:
             return JsonResponse({'error': 'more or equal to 1 character'})
-        task = Task.objects.get(id=id)
+        task = Task.objects.get(pk=id)
         task.desc = desc
         task.save()
         context = {
@@ -55,8 +62,15 @@ class UpdateView(View):
         return JsonResponse({'task': context})
 
 class DeleteView(View):
-    def delete(self, request, id):
-        task = Task.objects.get(id=id)
+    def delete(self, request):
+        if not request.user.is_authenticated:
+            return JsonResponse({'login': reverse('td:my_login'), 'redirect': request.path})
+        
+        id = json.loads(request.body)['dataId']
+        task = Task.objects.get(pk=id)
+        if request.user != task.owner:
+            return JsonResponse({'error': 'not owner of a task'})
+
         context = {
             'id': task.id, 
         }
@@ -64,8 +78,15 @@ class DeleteView(View):
         return JsonResponse({'task': context})
 
 class StateView(View):
-    def post(self, request, id):
-        task = Task.objects.get(id=id)
+    def patch(self, request):
+        if not request.user.is_authenticated:
+            return JsonResponse({'login': reverse('td:my_login'), 'redirect': request.path})
+        
+        id = json.loads(request.body)['dataId']
+        task = Task.objects.get(pk=id)
+        if request.user != task.owner:
+            return JsonResponse({'error': 'not owner of a task'})
+
         task.state = not task.state
         task.save()
         context = {
@@ -84,7 +105,8 @@ class RegisterView(View):
             return JsonResponse({'error': 'more or equal to 1 character'})
         user = User.objects.create_user(username, None, password)
         user.save()
-        return JsonResponse({'redirect': reverse('td:index'), 'username': user.username, 'password': user.password})
+        login(request, user)
+        return JsonResponse({'redirect': reverse('td:index'), 'username': user.username})
 
 class LoginView(View):
     def get(self, request):
