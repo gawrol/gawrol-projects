@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.views import View
 from td.models import Task
 from django.http import JsonResponse
+from django.contrib.auth.models import User
 
 # Create your views here.
 
@@ -70,3 +71,15 @@ class StateView(View):
             'state': task.state,
         }
         return JsonResponse({'task': context})
+
+class RegisterView(View):
+    def get(self, request):
+        return render(request, 'td/register.html')
+    def post(self, request):
+        username = json.loads(request.body)['data']['user']
+        password = json.loads(request.body)['data']['pass']
+        user = User.objects.create_user(username, None, password)
+        user.save()
+        return JsonResponse({'redirect': reverse('td:index'), 'username': user.username, 'password': user.password})
+
+

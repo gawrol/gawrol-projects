@@ -260,6 +260,17 @@ function state(id) {
         });
 }
 
+function registerUser() {
+    let username = document.getElementById('username').value;
+    let password = document.getElementById('password').value;
+
+    postTask('', {data: {user: username, pass: password}}, 'POST')
+        .then(data => {
+            console.log(data);
+            window.location = data.redirect;
+        });
+}
+
 function populate() {
     getTasks(getUrl)
         .then(data => {
