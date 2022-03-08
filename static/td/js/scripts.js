@@ -1,6 +1,6 @@
 // Substract CSRF token from cookie for AJAX POST request
 const cookie = document.cookie;
-const csrfToken = cookie.substring(cookie.indexOf('=') + 1);
+const csrftoken = cookie.substring(cookie.indexOf('=') + 1);
 
 // Define task uls 
 const tasksC = document.getElementById('tasksC');
@@ -36,7 +36,7 @@ async function postTask(url = '', data = {}, reqMETH = 'POST') {
         headers: {
             'Content-Type': 'application/json',
             // 'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRFToken': csrfToken,
+            'X-CSRFToken': csrftoken,
         },
         redirect: 'follow', // manual, *follow, error
         referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
