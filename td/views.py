@@ -30,10 +30,13 @@ class CreateView(View):
         desc = json.loads(request.body)['data']
         if len(desc) < 1:
             return JsonResponse({'error': 'more or equal to 1 character'})
+        if list(Task.objects.filter(desc__iexact=desc, owner=request.user).values()):
+            return JsonResponse({'error': 'task desc already exists for current user'})
+        
         task = Task(desc=desc)
         task.owner = request.user
         task.save()
-        taskN = list(Task.objects.filter(desc=desc).values())
+        taskN = list(Task.objects.filter(desc=desc, owner=task.owner).values())
         return JsonResponse({'task': taskN})
 
 class UpdateView(View):
@@ -52,6 +55,9 @@ class UpdateView(View):
         desc = json.loads(request.body)['dataText']
         if len(desc) < 1:
             return JsonResponse({'error': 'more or equal to 1 character'})
+        if list(Task.objects.filter(desc__iexact=desc, owner=task.owner).values()):
+            return JsonResponse({'error': 'task desc already exists for current user'})
+
         task = Task.objects.get(pk=id)
         task.desc = desc
         task.save()
