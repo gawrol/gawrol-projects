@@ -120,6 +120,11 @@ function blueprintTask(taskN) {
         change.appendChild(cancelU);
         // Add update div to task li
         task.appendChild(change);
+    // Error element
+    let errorT = document.createElement('p');
+    errorT.id = 'errorT' + taskN.id;
+    errorT.classList.add('hide', 'text-warning', 'mt-2');
+    task.appendChild(errorT);
 
     return task;
 }
@@ -150,10 +155,27 @@ function hideB(id) {
     db.classList.toggle('hide');
 }
 
+function showE(el, text) {
+    el.innerHTML = text;
+    el.classList.toggle('hide');
+
+    setTimeout(() => {
+        document.addEventListener("click", function deleteDetect(event) {
+            if (event) {
+                el.innerHTML = '';
+                el.classList.toggle('hide');
+                document.removeEventListener('click', deleteDetect);
+            }
+        });
+    }, 200);
+}
+
 function createTask() {
     let input = document.getElementById('inputC');
     if (input.value.length < 1) {
-        return console.log('1 or more characters');
+        let errorC = document.getElementById('errorC');
+        showE(errorC, '1 or more characters');
+        return;
     }
 
     postTask(createUrl, {data: input.value}, 'POST')
@@ -162,7 +184,8 @@ function createTask() {
                 window.location = data.login;
             }
             else if (data.hasOwnProperty('error')) {
-                console.log(data.error)
+                let errorC = document.getElementById('errorC');
+                showE(errorC, data.error);
             }
             else if (data.task.length == 1) {
                 let task = blueprintTask(data.task[0]);
@@ -180,7 +203,9 @@ function createTask() {
 function updateTask(id) {
     let input = document.getElementById('input'+id);
     if (input.value.length < 1) {
-        return console.log('1 or more characters');
+        let errorT = document.getElementById('errorT'+id);
+        showE(errorT, '1 or more characters');
+        return;
     }
     let desc = document.getElementById('p'+id);
     let task = document.getElementById(id);
@@ -191,7 +216,8 @@ function updateTask(id) {
                 window.location = data.login;
             }
             else if (data.hasOwnProperty('error')) {
-                console.log(data.error)
+                let errorT = document.getElementById('errorT'+id);
+                showE(errorT, data.error, id);
             }
             else if (data.task.id == id) {
                 // Update tasks dictionary desc
@@ -240,7 +266,8 @@ function deleteTaskConf(id) {
                 window.location = data.login;
             }
             else if (data.hasOwnProperty('error')) {
-                console.log(data.error)
+                let errorT = document.getElementById('errorT'+id);
+                showE(errorT, data.error);
             }
             else if (data.task.id == id) {
                 task.remove();
@@ -263,7 +290,8 @@ function state(id) {
                 window.location = data.login;
             }
             else if (data.hasOwnProperty('error')) {
-                console.log(data.error)
+                let errorT = document.getElementById('errorT'+id);
+                showE(errorT, data.error);
             }
             else if (data.task.id == id) {
                 task.classList.toggle('state');
@@ -289,13 +317,16 @@ function registerUser() {
     let usernameR = document.getElementById('usernameR').value;
     let passwordR = document.getElementById('passwordR').value;
     if (usernameR.length < 1 || passwordR.length < 1) {
-        return console.log('1 or more characters');
+        let errorR = document.getElementById('errorR');
+        showE(errorR, '1 or more characters');
+        return;
     }
 
     postTask(registerUrl, {data: {user: usernameR, pass: passwordR}}, 'POST')
         .then(data => {
             if (data.hasOwnProperty('error')) {
-                console.log(data.error)
+                let errorR = document.getElementById('errorR');
+                showE(errorR, data.error);
             } else {
                 window.location = data.redirect
             } 
@@ -306,13 +337,16 @@ function loginUser() {
     let usernameL = document.getElementById('usernameL').value;
     let passwordL = document.getElementById('passwordL').value;
     if (usernameL.length < 1 || passwordL.length < 1) {
-        return console.log('1 or more characters');
+        let errorL = document.getElementById('errorL');
+        showE(errorL, '1 or more characters');
+        return;
     }
 
     postTask(loginUrl, {data: {user: usernameL, pass: passwordL}}, 'POST')
         .then(data => {
                 if (data.hasOwnProperty('error')) {
-                    console.log(data.error)
+                    let errorL = document.getElementById('errorL');
+                    showE(errorL, data.error);
                 } else {
                     window.location = data.redirect
                 } 

@@ -6,6 +6,7 @@
         <input type="text" class="form-control" id="usernameL" placeholder="name..." autocomplete="off">
         <label for="passwordL" class="form-label">password</label>
         <input type="password" class="form-control" id="passwordL" placeholder="pass..." autocomplete="off">
+        <p id="errorL" class="text-danger hide mt-2"></p>
         <div class="mt-3">
             <button type="button" class="btn btn-primary" onclick="loginUser()">Login</button>
             <button type="button" class="btn btn-secondary mx-2" onclick="window.location='{% url 'td:index' %}'">Cancel</button>

@@ -109,6 +109,8 @@ class RegisterView(View):
         password = json.loads(request.body)['data']['pass']
         if len(username) < 1 or len(password) < 1:
             return JsonResponse({'error': 'more or equal to 1 character'})
+        if list(User.objects.filter(username__iexact=username).values()):
+            return JsonResponse({'error': 'user with suplied username already exists'})
         user = User.objects.create_user(username, None, password)
         user.save()
         login(request, user)
