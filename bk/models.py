@@ -1,4 +1,6 @@
 from django.db import models
+from django.dispatch import receiver
+from django.db.models.signals import post_save
 
 # Create your models here.
 
@@ -10,9 +12,6 @@ class Author(models.Model):
 
     def __str__(self):
         return self.name
-
-def unknown_author():
-        return Author.objects.get_or_create(name='unknown').pk
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -33,11 +32,11 @@ class Language(models.Model):
         return self.name
 
 def unknown_language():
-        return Language.objects.get_or_create(name='unknown').pk
+        return Language.objects.get_or_create(name='unknown')[0].pk
 
 class Book(models.Model):
     title = models.CharField(max_length=100)
-    authors = models.ManyToManyField(Author, default=unknown_author)
+    authors = models.ManyToManyField(Author)
     publisher = models.CharField(max_length=100, blank=True)
     publishedDate = models.DateField(blank=True, null=True)
     description = models.TextField(blank=True)
