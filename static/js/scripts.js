@@ -1,43 +1,10 @@
-// Substract CSRF token from cookie for AJAX POST request
-const cookie = document.cookie;
-const csrftoken = cookie.substring(cookie.indexOf('=') + 1);
+import { get, post } from './modules/fetch.js';
 
 // Define task uls 
 const tasksC = document.getElementById('tasksC');
 const tasksNC = document.getElementById('tasksNC');
 
 let tasks = new Array();
-
-async function getTasks(url = '') {
-    const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
-    return response.json();
-}
-
-// Example POST method implementation:
-async function postTask(url = '', data = {}, reqMETH = 'POST') {
-    // Default options are marked with *
-    const response = await fetch(url, {
-        // method: 'POST', // *GET, POST, PUT, DELETE, etc.
-        method: reqMETH,
-        mode: 'cors', // no-cors, *cors, same-origin
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
-        headers: {
-            'Content-Type': 'application/json',
-            // 'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRFToken': csrftoken,
-        },
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: JSON.stringify(data) // body data type must match "Content-Type" header
-    });
-    return response.json(); // parses JSON response into native JavaScript objects
-}
 
 function blueprintTask(taskN) {
     let task = document.createElement('li');
@@ -178,7 +145,7 @@ function createTask() {
         return;
     }
 
-    postTask(createUrl, {data: input.value}, 'POST')
+    post(createUrl, {data: input.value}, 'POST')
         .then(data => {
             if (data.hasOwnProperty('login') || data.hasOwnProperty('redirect')) {
                 window.location = data.login;
@@ -200,6 +167,11 @@ function createTask() {
         });
 }
 
+const createCol = document.getElementsByClassName('createButtons');
+for (let i = 0; i < createCol.length; i++) {
+        createCol[i].addEventListener('click', createTask);
+    }
+
 function updateTask(id) {
     let input = document.getElementById('input'+id);
     if (input.value.length < 1) {
@@ -210,7 +182,7 @@ function updateTask(id) {
     let desc = document.getElementById('p'+id);
     let task = document.getElementById(id);
 
-    postTask(updateUrl, {dataText: input.value, dataId: id}, 'PATCH')
+    post(updateUrl, {dataText: input.value, dataId: id}, 'PATCH')
         .then(data => {
             if (data.hasOwnProperty('login') || data.hasOwnProperty('redirect')) {
                 window.location = data.login;
@@ -260,7 +232,7 @@ function deleteTask(id) {
 function deleteTaskConf(id) {
     let task = document.getElementById(id);
 
-    postTask(deleteUrl, {dataId: id}, 'DELETE')
+    post(deleteUrl, {dataId: id}, 'DELETE')
         .then(data => {
             if (data.hasOwnProperty('login') || data.hasOwnProperty('redirect')) {
                 window.location = data.login;
@@ -284,7 +256,7 @@ function deleteTaskConf(id) {
 function state(id) {
     let task = document.getElementById(id);
 
-    postTask(stateUrl, {dataId: id}, 'PATCH')
+    post(stateUrl, {dataId: id}, 'PATCH')
         .then(data => {
             if (data.hasOwnProperty('login') || data.hasOwnProperty('redirect')) {
                 window.location = data.login;
@@ -322,7 +294,7 @@ function registerUser() {
         return;
     }
 
-    postTask(registerUrl, {data: {user: usernameR, pass: passwordR}}, 'POST')
+    post(registerUrl, {data: {user: usernameR, pass: passwordR}}, 'POST')
         .then(data => {
             if (data.hasOwnProperty('error')) {
                 let errorR = document.getElementById('errorR');
@@ -333,6 +305,11 @@ function registerUser() {
         });
 }
 
+const registerCol = document.getElementsByClassName('registerButtons');
+for (let i = 0; i < registerCol.length; i++) {
+        registerCol[i].addEventListener('click', registerUser);
+    }
+
 function loginUser() {
     let usernameL = document.getElementById('usernameL').value;
     let passwordL = document.getElementById('passwordL').value;
@@ -342,7 +319,7 @@ function loginUser() {
         return;
     }
 
-    postTask(loginUrl, {data: {user: usernameL, pass: passwordL}}, 'POST')
+    post(loginUrl, {data: {user: usernameL, pass: passwordL}}, 'POST')
         .then(data => {
                 if (data.hasOwnProperty('error')) {
                     let errorL = document.getElementById('errorL');
@@ -353,15 +330,25 @@ function loginUser() {
         });
 }
 
+const loginCol = document.getElementsByClassName('loginButtons');
+for (let i = 0; i < loginCol.length; i++) {
+        loginCol[i].addEventListener('click', loginUser);
+    }
+
 function logoutUser() {
-    getTasks(logoutUrl)
+    get(logoutUrl)
         .then(data => {
             window.location = data.redirect;
         });
 }
 
+const logoutCol = document.getElementsByClassName('logoutButtons');
+for (let i = 0; i < logoutCol.length; i++) {
+        logoutCol[i].addEventListener('click', logoutUser);
+    }
+
 function populate() {
-    getTasks(readUrl)
+    get(readUrl)
         .then(data => {
             if (data.tasks.length == 0) {
                 return;

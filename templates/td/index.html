@@ -9,7 +9,7 @@
             <button type="button" class="btn btn-secondary" onclick="window.location='{% url 'td:my_register' %}'">Register</button>
             <button type="button" class="btn btn-secondary mx-2" onclick="window.location='{% url 'td:my_login' %}'">Login</button>
             {% else %}
-            <button type="button" class="btn btn-secondary" onclick="logoutUser()">Logout</button>
+            <button type="button" class="btn btn-secondary logoutButtons">Logout</button>
             {% endif %}
         </div>
         {% if user.is_authenticated %}
@@ -23,7 +23,7 @@
         <label for="inputC" class="form-label">Add task</label>
         <input type="text" class="form-control" id="inputC" placeholder="Write your task..." autocomplete="off">
         <p id="errorC" class="text-danger hide mt-2"></p>
-        <button type="button" class="btn btn-primary mt-3" onclick="createTask()">Add</button>
+        <button type="button" class="btn btn-primary mt-3 createButtons">Add</button>
     </div>        
     <div class="mt-3">
         <p>Not completed</p>
