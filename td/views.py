@@ -11,6 +11,12 @@ from django.utils.decorators import method_decorator
 
 # Create your views here.
 
+errorEmpty = '1 or more characters'
+errorUserExists = 'user with suplied username already exists'
+errorCredentials = 'wrong username or password'
+errorOwner = 'not owner of a task'
+errorTaskExists = 'task desc already exists for current user'
+
 def login_required(func):
     @wraps(func)
     def wrapper_login_required(request, *args, **kwargs):
@@ -18,6 +24,22 @@ def login_required(func):
             return JsonResponse({'login': reverse('td:my_login'), 'redirect': request.path})
         return func(request, *args, **kwargs)
     return wrapper_login_required
+
+def empty(input):
+    if len(input) < 1:
+        return True
+
+def owner(user, owner):
+    if user == owner:
+        return True
+
+def task_exists(user, desc):
+    if list(Task.objects.filter(desc__iexact=desc, owner=user).values()):
+        return True
+
+def user_exists(username):
+    if list(User.objects.filter(username__iexact=username).values()):
+        return True
 
 class IndexView(View):
     def get(self, request):
@@ -36,11 +58,10 @@ class ReadView(View):
 class CreateView(View):
     def post(self, request):
         desc = json.loads(request.body)['data']
-        if len(desc) < 1:
-            return JsonResponse({'error': 'more or equal to 1 character'})
-
-        if list(Task.objects.filter(desc__iexact=desc, owner=request.user).values()):
-            return JsonResponse({'error': 'task desc already exists for current user'})
+        if empty(desc):
+            return JsonResponse({'error': errorEmpty})
+        if task_exists(request.user, desc):
+            return JsonResponse({'error': errorTaskExists})
         
         task = Task(desc=desc)
         task.owner = request.user
@@ -53,17 +74,17 @@ class UpdateView(View):
     def patch(self, request):
         id = json.loads(request.body)['dataId']
         task = Task.objects.get(pk=id)
-        if request.user != task.owner:
-            return JsonResponse({'error': 'not owner of a task'})
+        if not owner(request.user, task.owner):
+            return JsonResponse({'error': errorOwner})
 
         # request.body to read incoming json
         # json.loads() to convert from JSON to Python dictionary
         # [''] to read key and its value
         desc = json.loads(request.body)['dataText']
-        if len(desc) < 1:
-            return JsonResponse({'error': 'more or equal to 1 character'})
-        if list(Task.objects.filter(desc__iexact=desc, owner=task.owner).values()):
-            return JsonResponse({'error': 'task desc already exists for current user'})
+        if empty(desc):
+            return JsonResponse({'error': errorEmpty})
+        if task_exists(request.user, desc):
+            return JsonResponse({'error': errorTaskExists})
 
         task = Task.objects.get(pk=id)
         task.desc = desc
@@ -79,8 +100,8 @@ class DeleteView(View):
     def delete(self, request):       
         id = json.loads(request.body)['dataId']
         task = Task.objects.get(pk=id)
-        if request.user != task.owner:
-            return JsonResponse({'error': 'not owner of a task'})
+        if not owner(request.user, task.owner):
+            return JsonResponse({'error': errorOwner})
 
         context = {
             'id': task.id, 
@@ -93,8 +114,8 @@ class StateView(View):
     def patch(self, request):
         id = json.loads(request.body)['dataId']
         task = Task.objects.get(pk=id)
-        if request.user != task.owner:
-            return JsonResponse({'error': 'not owner of a task'})
+        if not owner(request.user, task.owner):
+            return JsonResponse({'error': errorOwner})
 
         task.state = not task.state
         task.save()
@@ -110,10 +131,11 @@ class RegisterView(View):
     def post(self, request):
         username = json.loads(request.body)['data']['user']
         password = json.loads(request.body)['data']['pass']
-        if len(username) < 1 or len(password) < 1:
-            return JsonResponse({'error': 'more or equal to 1 character'})
-        if list(User.objects.filter(username__iexact=username).values()):
-            return JsonResponse({'error': 'user with suplied username already exists'})
+        if empty(username) or empty(password):
+            return JsonResponse({'error': errorEmpty})
+        if user_exists(username):
+            return JsonResponse({'error': errorUserExists})
+
         user = User.objects.create_user(username, None, password)
         user.save()
         login(request, user)
@@ -125,14 +147,15 @@ class LoginView(View):
     def post(self, request):
         username = json.loads(request.body)['data']['user']
         password = json.loads(request.body)['data']['pass']
-        if len(username) < 1 or len(password) < 1:
-            return JsonResponse({'error': 'more or equal to 1 character'})
+        if empty(username) or empty(password):
+            return JsonResponse({'error': errorEmpty})
+
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
             return JsonResponse({'redirect': reverse('td:index'), 'username': user.username})
         else:
-            return JsonResponse({'error': 'wrong username or password'})
+            return JsonResponse({'error': errorCredentials})
 
 class LogoutView(View):
     def get(self, request):
