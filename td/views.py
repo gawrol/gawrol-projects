@@ -6,13 +6,22 @@ from td.models import Task
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+from functools import wraps
+from django.utils.decorators import method_decorator
 
 # Create your views here.
+
+def login_required(func):
+    @wraps(func)
+    def wrapper_login_required(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return JsonResponse({'login': reverse('td:my_login'), 'redirect': request.path})
+        return func(request, *args, **kwargs)
+    return wrapper_login_required
 
 class IndexView(View):
     def get(self, request):
         return render(request, 'td/index.html')
-
 
 class ReadView(View):
     def get(self, request):
@@ -23,13 +32,13 @@ class ReadView(View):
             tasks = list()
         return JsonResponse({'tasks': tasks})
 
+@method_decorator(login_required, name='dispatch')
 class CreateView(View):
     def post(self, request):
-        if not request.user.is_authenticated:
-            return JsonResponse({'login': reverse('td:my_login'), 'redirect': request.path})
         desc = json.loads(request.body)['data']
         if len(desc) < 1:
             return JsonResponse({'error': 'more or equal to 1 character'})
+
         if list(Task.objects.filter(desc__iexact=desc, owner=request.user).values()):
             return JsonResponse({'error': 'task desc already exists for current user'})
         
@@ -39,11 +48,9 @@ class CreateView(View):
         taskN = list(Task.objects.filter(desc=desc, owner=task.owner).values())
         return JsonResponse({'task': taskN})
 
+@method_decorator(login_required, name='dispatch')
 class UpdateView(View):
     def patch(self, request):
-        if not request.user.is_authenticated:
-            return JsonResponse({'login': reverse('td:my_login'), 'redirect': request.path})
-        
         id = json.loads(request.body)['dataId']
         task = Task.objects.get(pk=id)
         if request.user != task.owner:
@@ -67,11 +74,9 @@ class UpdateView(View):
         }
         return JsonResponse({'task': context})
 
+@method_decorator(login_required, name='dispatch')
 class DeleteView(View):
-    def delete(self, request):
-        if not request.user.is_authenticated:
-            return JsonResponse({'login': reverse('td:my_login'), 'redirect': request.path})
-        
+    def delete(self, request):       
         id = json.loads(request.body)['dataId']
         task = Task.objects.get(pk=id)
         if request.user != task.owner:
@@ -83,11 +88,9 @@ class DeleteView(View):
         task.delete()
         return JsonResponse({'task': context})
 
+@method_decorator(login_required, name='dispatch')
 class StateView(View):
     def patch(self, request):
-        if not request.user.is_authenticated:
-            return JsonResponse({'login': reverse('td:my_login'), 'redirect': request.path})
-        
         id = json.loads(request.body)['dataId']
         task = Task.objects.get(pk=id)
         if request.user != task.owner:
