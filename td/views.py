@@ -21,7 +21,7 @@ def login_required(func):
     @wraps(func)
     def wrapper_login_required(request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return JsonResponse({'login': reverse('td:my_login'), 'redirect': request.path})
+            return JsonResponse({'login': reverse('td:my_login')})
         return func(request, *args, **kwargs)
     return wrapper_login_required
 

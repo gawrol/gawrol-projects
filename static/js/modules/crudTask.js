@@ -13,7 +13,7 @@ function createTask() {
 
     post(createUrl, {data: input.value}, 'POST')
         .then(data => {
-            if (data.hasOwnProperty('login') || data.hasOwnProperty('redirect')) {
+            if (data.hasOwnProperty('login')) {
                 window.location = data.login;
             }
             else if (data.hasOwnProperty('error')) {
@@ -47,7 +47,7 @@ function updateTask(id) {
 
     post(updateUrl, {dataText: input.value, dataId: id}, 'PATCH')
         .then(data => {
-            if (data.hasOwnProperty('login') || data.hasOwnProperty('redirect')) {
+            if (data.hasOwnProperty('login')) {
                 window.location = data.login;
             }
             else if (data.hasOwnProperty('error')) {
@@ -98,7 +98,7 @@ function deleteTaskConf(id) {
 
     post(deleteUrl, {dataId: id}, 'DELETE')
         .then(data => {
-            if (data.hasOwnProperty('login') || data.hasOwnProperty('redirect')) {
+            if (data.hasOwnProperty('login')) {
                 window.location = data.login;
             }
             else if (data.hasOwnProperty('error')) {
@@ -122,7 +122,7 @@ function stateTask(id) {
 
     post(stateUrl, {dataId: id}, 'PATCH')
         .then(data => {
-            if (data.hasOwnProperty('login') || data.hasOwnProperty('redirect')) {
+            if (data.hasOwnProperty('login')) {
                 window.location = data.login;
             }
             else if (data.hasOwnProperty('error')) {
