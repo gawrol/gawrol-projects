@@ -5,9 +5,13 @@ import { blueprint } from './modules/blueprintBook.js';
 
 // Define books ul
 const booksUl = document.getElementById('books');
+// Define query ul
+const queryUl = document.getElementById('query');
 
 // Define books array
 let books = new Array();
+// Define query array
+let query = new Array();
 
 function queryBooks() {
     let input = document.getElementById('search').value;
@@ -17,17 +21,20 @@ function queryBooks() {
             if (data.totalItems == 0) {
                 return;
             }
-            books = data.items;
-            for (let i = 0; i < books.length; i++) {
-                let book = blueprint(books[i]);
-                booksUl.appendChild(book);
+            console.log(data.items)
+            query = data.items;
+            for (let i = 0; i < query.length; i++) {
+                let book = blueprint(query[i]);
+                queryUl.appendChild(book);
             } 
         })
 }
 
-clickButtons('query', queryBooks);
+clickButtons('search', queryBooks);
 
 window.addEventListener('load', function () {
     if (window.location.pathname == indexUrlBooks) { 
     }
 })
+
+export { books, booksUl};

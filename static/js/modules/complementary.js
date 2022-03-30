@@ -45,8 +45,8 @@ function clickButtons(button, method) {
     const collection = document.getElementsByClassName(button);
 
     for (let i = 0; i < collection.length; i++) {
-            collection[i].addEventListener('click', method);
-        }
+        collection[i].addEventListener('click', method);
+    }
 }
 
 export { readOrUpdate, hideUpdateDelete, showError, clickButtons };
