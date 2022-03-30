@@ -55,10 +55,25 @@ class CreateView(View):
             b.authors.add(authors[a])
 
         context = {
-            'id': id,
+            'id': b.pk,
+            'idCache': id,
             'volumeInfo': {
                 'title': title,
                 'authors': authorsCache, 
             },
         }
+        return JsonResponse({'book': context})
+
+class DeleteView(View):
+    def delete(self, request):
+        book = json.loads(request.body)['book']
+        id = book['id']
+
+        b = Book.objects.get(pk=id)
+        b.delete()
+
+        context = {
+            'id': id,
+        }
+
         return JsonResponse({'book': context})

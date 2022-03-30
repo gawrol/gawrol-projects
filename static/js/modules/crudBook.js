@@ -21,27 +21,43 @@ function createBook(event, data={}) {
         data.volumeInfo.authors = [];
     }
 
-    let id = data.id;
+    const id = data.id;
 
     post(createUrlBooks, {book: data}, 'POST')
         .then(data => {
-            if (data.book.id == id) {
-                let book = document.getElementById(data.book.id);
-                if (book == null) {
-                    book = blueprint(data.book);
-                }
+            if (data.book.idCache == id) {
+                let book = blueprint(data.book, false);
                 booksUl.insertBefore(book, booksUl.children[0]);
-                document.getElementById('b'+data.book.id).remove();
                 if (books.length > 1) {
                     books.unshift(data.book);
                 } else {
                     books.push(data.book);
                 }
-                document.getElementById('query').innerHTML = '';
+                if (document.getElementById(id)) {
+                    document.getElementById(id).remove();
+                }
+                // document.getElementById('query').innerHTML = '';
             }
         });
 }
 
 clickButtons('create', createBook)
 
-export { createBook };
+function deleteBook(event, data={}) {
+    const id = data.id;
+
+    post(deleteUrlBooks, {book: data}, 'DELETE')
+        .then(data => {
+            if (data.book.id == id) {
+                const book = document.getElementById(id);
+                book.remove();
+                const objectId = id;
+                const bookIndex = books.findIndex( ({ id }) => id == objectId);
+                books.splice(bookIndex, 1);
+            }
+        });
+}
+
+clickButtons('delete', deleteBook)
+
+export { createBook, deleteBook };

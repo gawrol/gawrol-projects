@@ -4,9 +4,9 @@ import { config } from './config.js';
 import { blueprint } from './modules/blueprintBook.js';
 
 // Define books ul
-const booksUl = document.getElementById('books');
+const booksUl = document.getElementById('booksUl');
 // Define query ul
-const queryUl = document.getElementById('query');
+const queryUl = document.getElementById('queryUl');
 
 // Define books array
 let books = new Array();
@@ -18,29 +18,37 @@ function queryBooks() {
     const url = 'https://www.googleapis.com/books/v1/volumes?q='+input+'&key='+config.key;
     get(url)
         .then(data => {
+            document.getElementById('queryUl').innerHTML = '';
             if (data.totalItems == 0) {
+                queryUl.innerHTML = 'No results found';
                 return;
             }
-            console.log(data.items)
             query = data.items;
             for (let i = 0; i < query.length; i++) {
-                let book = blueprint(query[i]);
+                let book = blueprint(query[i], true);
                 queryUl.appendChild(book);
-            } 
+            }
+            document.getElementById('results').classList.remove('hide');
+            queryUl.classList.remove('hide');
         })
 }
 
 clickButtons('search', queryBooks);
 
+function queryResults() {
+    queryUl.classList.toggle('hide');
+}
+
+clickButtons('results', queryResults);
+
 window.addEventListener('load', function () {
     if (window.location.pathname == indexUrlBooks) { 
         get(readUrlBooks)
             .then(data => {
-                console.log(data.books);
                 if (data.books.length != 0) {
                     books = data.books;
                     for (let i=0; i<books.length; i++) {
-                        let book = blueprint(books[i]);
+                        let book = blueprint(books[i], false);
                         booksUl.appendChild(book);
                     }
                 }
@@ -48,4 +56,4 @@ window.addEventListener('load', function () {
     }
 })
 
-export { books, booksUl};
+export { books, booksUl };

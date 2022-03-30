@@ -1,51 +1,67 @@
-import { createBook } from './crudBook.js';
+import { createBook, deleteBook } from './crudBook.js';
 
-function blueprint(el) {
+function blueprint(el, query=false) {
     // Create book li element
     let book = document.createElement('li');
     book.id = el.id;
-    book.classList.add('list-group-item');
+    book.classList.add('list-group-item', 'list-group-item-action');
     // Div for reading books
     let readDiv = document.createElement('div');
     readDiv.id = 'read' + el.id;
         // Title text
-        const title = el.volumeInfo.title;
-        let text = document.createElement('p');
-        text.id = 'p' + el.id;
-        text.innerHTML = el.volumeInfo.title;
-        readDiv.appendChild(text);
+        let textTitle = document.createElement('p');
+        textTitle.id = 'p' + el.id;
+        textTitle.innerHTML = el.volumeInfo.title;
+        readDiv.appendChild(textTitle);
         // Authors dict
-        const authorsL = el.volumeInfo.authors.length;
         let authors = new Array();
         let authorsComma = new String();
-        if (authorsL > 0) {
-            for (let i=0; i<authorsL; i++) {
-                authors[i] = el.volumeInfo.authors[i];
-                authorsComma += el.volumeInfo.authors[i];
-                if (i != authorsL-1) {
-                    authorsComma += ', ';
+        if (el.volumeInfo.authors == undefined) {
+            authorsComma = 'unknown';
+        } else {
+            const authorsL = el.volumeInfo.authors.length;
+            if (authorsL > 0) {
+                for (let i=0; i<authorsL; i++) {
+                    authors[i] = el.volumeInfo.authors[i];
+                    authorsComma += el.volumeInfo.authors[i];
+                    if (i != authorsL-1) {
+                        authorsComma += ', ';
+                    }
                 }
             }
-        let dict = document.createElement('p');
-        dict.id = 'd' + el.id;
-        dict.innerHTML = authorsComma;
-        readDiv.appendChild(dict);
         }
-        // Button to add query book to local books
+        
+        let textAuthors = document.createElement('p');
+        textAuthors.id = 'd' + el.id;
+        textAuthors.innerHTML = authorsComma;
+        readDiv.appendChild(textAuthors);
+        
         let button = document.createElement('button');
         button.type = 'button'
-        button.id = 'b' + el.id;
-        button.innerHTML = 'Add';
-        button.classList.add('btn', 'btn-primary');
-        button.addEventListener('click', function() {
-            createBook(null, {
-                id: el.id,
-                volumeInfo: {
-                    title: title,
-                    authors: authors,
-                },
-            });
-        })
+        // Button to add query book to local books
+        if (query) {
+            button.innerHTML = 'Add';
+            button.classList.add('btn', 'btn-primary');
+            button.addEventListener('click', function() {
+                createBook(null, {
+                    id: el.id,
+                    volumeInfo: {
+                        title: el.volumeInfo.title,
+                        authors: authors,
+                    },
+                });
+            })
+        }
+        // Button to delete local book
+        if (!query) {
+            button.innerHTML = 'Del';
+            button.classList.add('btn', 'btn-danger', 'delete');
+            button.addEventListener('click', function() {
+                deleteBook(null, {
+                    id: el.id,
+                });
+            })
+        }
         readDiv.appendChild(button);
 
     // Add read div to book li
