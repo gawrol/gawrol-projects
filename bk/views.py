@@ -12,6 +12,27 @@ class IndexView(View):
     def get(self, request):
         return render(request, 'bk/index.html')
 
+class ReadView(View):
+    def get(self, request):
+        books = Book.objects.all().order_by('-updated_at')
+        booksValues = list(books.values())
+        booksJSON = list()
+        if booksValues:
+            for b in range(len(booksValues)):
+                authors = list(books[b].authors.all())
+                if authors:
+                    authorsJSON = list()
+                    for a in range(len(authors)):
+                        authorsJSON.append(authors[a].name)
+                booksJSON.append({
+                    'id': booksValues[b]['id'],
+                    'volumeInfo': {
+                        'title': booksValues[b]['title'],
+                        'authors': authorsJSON, 
+                    },
+                })
+        return JsonResponse({'books': booksJSON})
+
 class CreateView(View):
     def post(self, request):
         book = json.loads(request.body)['book']

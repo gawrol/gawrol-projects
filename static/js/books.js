@@ -34,6 +34,17 @@ clickButtons('search', queryBooks);
 
 window.addEventListener('load', function () {
     if (window.location.pathname == indexUrlBooks) { 
+        get(readUrlBooks)
+            .then(data => {
+                console.log(data.books);
+                if (data.books.length != 0) {
+                    books = data.books;
+                    for (let i=0; i<books.length; i++) {
+                        let book = blueprint(books[i]);
+                        booksUl.appendChild(book);
+                    }
+                }
+            })
     }
 })
 
