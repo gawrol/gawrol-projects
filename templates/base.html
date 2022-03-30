@@ -17,6 +17,9 @@
   {% endblock %}
   {% csrf_token %}
   <script>
+    const mediaUrlBooks = '{% get_media_prefix %}' + 'bk/';
+    const defaultThumbnail = 'thumbnail.jpg';
+
     const indexUrlBooks = '{% url 'bk:index' %}';
     const readUrlBooks = '{% url 'bk:read' %}';
     const createUrlBooks = '{% url 'bk:create' %}';

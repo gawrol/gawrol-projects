@@ -37,15 +37,12 @@ def unknown_language():
 class Book(models.Model):
     title = models.CharField(max_length=100)
     authors = models.ManyToManyField(Author)
-    publisher = models.CharField(max_length=100, blank=True)
-    publishedDate = models.DateField(blank=True, null=True)
     description = models.TextField(blank=True)
-    pageCount = models.IntegerField(blank=True, null=True)
     categories = models.ManyToManyField(Category, blank=True)
     averageRating = models.FloatField(blank=True, null=True)
     ratingsCount = models.IntegerField(blank=True, null=True)
     language = models.ForeignKey(Language, on_delete=models.SET_DEFAULT, default=unknown_language)
-    thumbnail = models.ImageField(upload_to='books/', default='thumbnail.jpg')
+    thumbnail = models.ImageField(upload_to='bk/', default='thumbnail.jpg')
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -24,6 +24,7 @@ function queryBooks() {
                 return;
             }
             query = data.items;
+            console.log(query);
             for (let i = 0; i < query.length; i++) {
                 let book = blueprint(query[i], true);
                 queryUl.appendChild(book);

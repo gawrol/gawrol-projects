@@ -36,6 +36,24 @@ function blueprint(el, query=false) {
         textAuthors.innerHTML = authorsComma;
         readDiv.appendChild(textAuthors);
         
+        // Thumbnail 
+        let image = document.createElement('IMG');
+        let imageUrl = new String();
+        if (query) {
+            if (el.volumeInfo.imageLinks == undefined) {
+                image.src = mediaUrlBooks+defaultThumbnail;
+                imageUrl = defaultThumbnail;
+            }
+            else {
+                image.src = el.volumeInfo.imageLinks.thumbnail;
+                imageUrl = image.src;
+            }
+        } else {
+            image.src = mediaUrlBooks+el.volumeInfo.imageLinks.thumbnail;
+        }
+        image.alt = 'thumbnail';
+        readDiv.appendChild(image);
+
         let button = document.createElement('button');
         button.type = 'button'
         // Button to add query book to local books
@@ -48,6 +66,9 @@ function blueprint(el, query=false) {
                     volumeInfo: {
                         title: el.volumeInfo.title,
                         authors: authors,
+                        imageLinks: {
+                            thumbnail: imageUrl,
+                        }
                     },
                 });
             })

@@ -3,8 +3,10 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
+import urllib.request
 
 from bk.models import Author, Book
+from gp.settings import MEDIA_URL
 
 # Create your views here.
 
@@ -28,9 +30,13 @@ class ReadView(View):
                     'id': booksValues[b]['id'],
                     'volumeInfo': {
                         'title': booksValues[b]['title'],
-                        'authors': authorsJSON, 
+                        'authors': authorsJSON,
+                        'imageLinks': {
+                            'thumbnail': booksValues[b]['thumbnail'],
+                        },
                     },
                 })
+                print(books[b].thumbnail.url)
         return JsonResponse({'books': booksJSON})
 
 class CreateView(View):
@@ -39,6 +45,7 @@ class CreateView(View):
         id = book['id']
         title = book['volumeInfo']['title']
         authors = book['volumeInfo']['authors']
+        thumbnail = book['volumeInfo']['imageLinks']['thumbnail']
         authorsCache = list(authors)
 
         if not authors:
@@ -48,7 +55,9 @@ class CreateView(View):
             for a in range(len(authors)):
                 authors[a] = Author.objects.get_or_create(name=authors[a])[0]
         
-        b = Book(title=title)
+        urllib.request.urlretrieve(thumbnail, MEDIA_URL+'bk/'+id+'.jpg')
+
+        b = Book(title=title, thumbnail=id+'.jpg')
         b.save()
 
         for a in range(len(authors)):
@@ -60,6 +69,9 @@ class CreateView(View):
             'volumeInfo': {
                 'title': title,
                 'authors': authorsCache, 
+                'imageLinks': {
+                    'thumbnail': str(b.thumbnail),
+                },
             },
         }
         return JsonResponse({'book': context})
