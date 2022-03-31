@@ -1,9 +1,13 @@
 import json
+from django.forms import ImageField
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
 import urllib.request
+from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
+from django.core.files import File
 
 from bk.models import Author, Book
 from gp.settings import MEDIA_URL
@@ -55,9 +59,29 @@ class CreateView(View):
             for a in range(len(authors)):
                 authors[a] = Author.objects.get_or_create(name=authors[a])[0]
         
-        urllib.request.urlretrieve(thumbnail, MEDIA_URL+'bk/'+id+'.jpg')
+        # try, except - verify if thumbnail URL is valid, if valid, download
+        thumbnailValidator = URLValidator()
+        try:
+            thumbnailValidator(thumbnail)
+            result = urllib.request.urlretrieve(thumbnail, MEDIA_URL+'bk/'+id)
 
-        b = Book(title=title, thumbnail=id+'.jpg')
+            # open downloaded file 'rb' - r is read, b is binary
+            with open(result[0], 'rb') as f:
+                myfile = File(f)
+                x = ImageField()
+                # try except if downloaded file is not an image; using to_python method from ImageField class
+                try:
+                    x.to_python(myfile)
+                    thumbnail = id
+                # if not an image, use default
+                except:
+                    thumbnail = 'thumbnail'
+            myfile.closed
+            f.closed
+        except ValidationError as e:
+            print(e)
+
+        b = Book(title=title, thumbnail=thumbnail)
         b.save()
 
         for a in range(len(authors)):

@@ -52,6 +52,8 @@ function blueprint(el, query=false) {
             image.src = mediaUrlBooks+el.volumeInfo.imageLinks.thumbnail;
         }
         image.alt = 'thumbnail';
+        image.height = '100';
+        image.width = '100';
         readDiv.appendChild(image);
 
         let button = document.createElement('button');

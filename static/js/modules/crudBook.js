@@ -19,6 +19,8 @@ function createBook(event, data={}) {
         data.volumeInfo = {};
         data.volumeInfo.title = document.getElementById('title').value;
         data.volumeInfo.authors = [];
+        data.volumeInfo.imageLinks = {};
+        data.volumeInfo.imageLinks.thumbnail = defaultThumbnail;
     }
 
     const id = data.id;
