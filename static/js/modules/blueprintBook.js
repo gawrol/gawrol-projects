@@ -20,7 +20,7 @@ function blueprint(el, query=false) {
                 imageUrl = image.src;
             }
         } else {
-            image.src = mediaUrlBooks+el.volumeInfo.imageLinks.thumbnail;
+            image.src = mediaUrl+el.volumeInfo.imageLinks.thumbnail;
         }
         image.alt = 'thumbnail';
         image.width = '100';
@@ -61,27 +61,23 @@ function blueprint(el, query=false) {
         if (query) {
             button.innerHTML = 'Add';
             button.classList.add('btn', 'btn-primary');
+            const formData = new FormData();
+            formData.append('id', el.id);
+            formData.append('volumeInfo.title', el.volumeInfo.title);
+            formData.append('volumeInfo.authors', JSON.stringify(authors));
+            formData.append('volumeInfo.imageLinks.thumbUrl', imageUrl);
             button.addEventListener('click', function() {
-                createBook(null, {
-                    id: el.id,
-                    volumeInfo: {
-                        title: el.volumeInfo.title,
-                        authors: authors,
-                        imageLinks: {
-                            thumbnail: imageUrl,
-                        }
-                    },
-                });
+                createBook(null, formData);
             })
         }
         // Button to delete local book
         if (!query) {
             button.innerHTML = 'Del';
             button.classList.add('btn', 'btn-danger', 'delete');
+            const formData = new FormData();
+            formData.append('id', el.id);
             button.addEventListener('click', function() {
-                deleteBook(null, {
-                    id: el.id,
-                });
+                deleteBook(null, formData);
             })
         }
         readDiv.appendChild(button);

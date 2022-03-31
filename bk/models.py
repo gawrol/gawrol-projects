@@ -42,7 +42,7 @@ class Book(models.Model):
     averageRating = models.FloatField(blank=True, null=True)
     ratingsCount = models.IntegerField(blank=True, null=True)
     language = models.ForeignKey(Language, on_delete=models.SET_DEFAULT, default=unknown_language)
-    thumbnail = models.ImageField(upload_to='bk/', default='thumbnail.jpg')
+    thumbnail = models.ImageField(upload_to='bk/', default='bk/thumbnail')
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

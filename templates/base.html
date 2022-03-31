@@ -17,7 +17,7 @@
   {% endblock %}
   {% csrf_token %}
   <script>
-    const mediaUrlBooks = '{% get_media_prefix %}' + 'bk/';
+    const mediaUrl = '{% get_media_prefix %}';
 
     const indexUrlBooks = '{% url 'bk:index' %}';
     const readUrlBooks = '{% url 'bk:read' %}';

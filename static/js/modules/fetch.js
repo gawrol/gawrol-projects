@@ -16,10 +16,10 @@ async function post(url = '', data = {}, type= 'POST') {
     const response = await fetch(url, {
         method: type,
         headers: {
-            'Content-Type': 'application/json',
             'X-CSRFToken': csrftoken,
         },
-        body: JSON.stringify(data) // body data type must match "Content-Type" header
+        body: data
+
     });
     return response.json(); // parses JSON response into native JavaScript objects
 }

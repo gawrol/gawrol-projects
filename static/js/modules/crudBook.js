@@ -14,18 +14,22 @@ function makeId(length) {
 }
 
 function createBook(event, data={}) {
-    if (event) {
-        data.id = makeId(10);
-        data.volumeInfo = {};
-        data.volumeInfo.title = document.getElementById('title').value;
-        data.volumeInfo.authors = [];
-        data.volumeInfo.imageLinks = {};
-        data.volumeInfo.imageLinks.thumbnail = '';
+    if (event) { 
+        const formData = new FormData();
+        const fileField = document.getElementById('thumbFile');
+
+        formData.append('id', makeId(10));
+        formData.append('volumeInfo.title', document.getElementById('title').value);
+        const arr = new Array();
+        formData.append('volumeInfo.authors', JSON.stringify(arr));
+        formData.append('volumeInfo.imageLinks.thumbUrl', '');
+        formData.append('volumeInfo.imageLinks.thumbFile', fileField.files[0]);
+
+        data = formData;
     }
+    const id = data.get('id');
 
-    const id = data.id;
-
-    post(createUrlBooks, {book: data}, 'POST')
+    post(createUrlBooks, data, 'POST')
         .then(data => {
             if (data.book.idCache == id) {
                 let book = blueprint(data.book, false);
@@ -45,9 +49,9 @@ function createBook(event, data={}) {
 clickButtons('create', createBook)
 
 function deleteBook(event, data={}) {
-    const id = data.id;
+    const id = data.get('id');
 
-    post(deleteUrlBooks, {book: data}, 'DELETE')
+    post(deleteUrlBooks, data, 'POST')
         .then(data => {
             if (data.book.id == id) {
                 const book = document.getElementById(id);

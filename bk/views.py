@@ -4,15 +4,12 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
-import urllib.request
 from django.core.validators import URLValidator
-from django.core.exceptions import ValidationError
-from django.core.files import File
-
+from PIL import Image
+import requests
+from io import BytesIO    
+from django.core.files.base import ContentFile
 from bk.models import Author, Book
-from gp.settings import MEDIA_URL
-
-DEFAULT_THUMBNAIL = 'thumbnail'
 
 # Create your views here.
 
@@ -46,11 +43,12 @@ class ReadView(View):
 
 class CreateView(View):
     def post(self, request):
-        book = json.loads(request.body)['book']
-        id = book['id']
-        title = book['volumeInfo']['title']
-        authors = book['volumeInfo']['authors']
-        thumbnail = book['volumeInfo']['imageLinks']['thumbnail']
+        book = request.POST
+        id = book.get('id')
+        title = book.get('volumeInfo.title')
+        authors = json.loads(book.get('volumeInfo.authors'))
+        thumbUrl = book.get('volumeInfo.imageLinks.thumbUrl')
+        thumbFile = request.FILES.get('volumeInfo.imageLinks.thumbFile')
         authorsCache = list(authors)
 
         if not authors:
@@ -60,29 +58,39 @@ class CreateView(View):
             for a in range(len(authors)):
                 authors[a] = Author.objects.get_or_create(name=authors[a])[0]
         
-        # try, except - verify if thumbnail URL is valid, if valid, download
-        thumbnailValidator = URLValidator()
+        # try, except - verify if thumbnail URL is valid
+        thumbUrlValidator = URLValidator()
         try:
-            thumbnailValidator(thumbnail)
-            result = urllib.request.urlretrieve(thumbnail, MEDIA_URL+'bk/'+id)
+            thumbUrlValidator(thumbUrl)
+            # , if valid, stream to memory
+            response = requests.get(thumbUrl, stream=True)
+            imgUrl = Image.open(response.raw)
+            imgCopy = imgUrl.copy()
+            buffer = BytesIO()
+            imgCopy.save(buffer, format='JPEG')
+            imgTmp = ContentFile(buffer.getvalue(), id)
 
-            # open downloaded file 'rb' - r is read, b is binary
-            with open(result[0], 'rb') as f:
-                myfile = File(f)
-                fileValidator = ImageField()
-                # try except if downloaded file is not an image; using to_python method from ImageField class
-                try:
-                    fileValidator.to_python(myfile)
-                    thumbnail = id
-                # if not an image, use default
-                except:
-                    thumbnail = DEFAULT_THUMBNAIL
-            myfile.closed
-            f.closed
-        except ValidationError as e:
-            thumbnail = DEFAULT_THUMBNAIL
+            # try except if streamed file is not an image; using to_python method from ImageField class
+            imageValidator = ImageField()
+            try:
+                imageValidator.to_python(imgTmp)
+                thumbnail = imgTmp
+            except:
+                thumbnail = None
+            
+        except:
+            # if url is false, check if added file is an image
+            imageValidator = ImageField()
+            try:
+                imageValidator.to_python(thumbFile)
+                thumbnail = thumbFile
+            except:
+                thumbnail = None
 
-        b = Book(title=title, thumbnail=thumbnail)
+        if thumbnail is None:
+            b = Book(title=title)
+        else:
+            b = Book(title=title, thumbnail=thumbnail)
         b.save()
 
         for a in range(len(authors)):
@@ -102,9 +110,8 @@ class CreateView(View):
         return JsonResponse({'book': context})
 
 class DeleteView(View):
-    def delete(self, request):
-        book = json.loads(request.body)['book']
-        id = book['id']
+    def post(self, request):
+        id = request.POST.get('id')
 
         b = Book.objects.get(pk=id)
         b.delete()
@@ -112,5 +119,4 @@ class DeleteView(View):
         context = {
             'id': id,
         }
-
         return JsonResponse({'book': context})
