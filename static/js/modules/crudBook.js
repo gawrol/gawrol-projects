@@ -20,7 +20,7 @@ function createBook(event, data={}) {
         data.volumeInfo.title = document.getElementById('title').value;
         data.volumeInfo.authors = [];
         data.volumeInfo.imageLinks = {};
-        data.volumeInfo.imageLinks.thumbnail = defaultThumbnail;
+        data.volumeInfo.imageLinks.thumbnail = '';
     }
 
     const id = data.id;
@@ -38,7 +38,6 @@ function createBook(event, data={}) {
                 if (document.getElementById(id)) {
                     document.getElementById(id).remove();
                 }
-                // document.getElementById('query').innerHTML = '';
             }
         });
 }

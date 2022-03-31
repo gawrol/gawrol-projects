@@ -41,8 +41,6 @@ function blueprint(el, query=false) {
         let imageUrl = new String();
         if (query) {
             if (el.volumeInfo.imageLinks == undefined) {
-                image.src = mediaUrlBooks+defaultThumbnail;
-                imageUrl = defaultThumbnail;
             }
             else {
                 image.src = el.volumeInfo.imageLinks.thumbnail;

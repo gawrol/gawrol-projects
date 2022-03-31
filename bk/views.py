@@ -12,6 +12,8 @@ from django.core.files import File
 from bk.models import Author, Book
 from gp.settings import MEDIA_URL
 
+DEFAULT_THUMBNAIL = 'thumbnail'
+
 # Create your views here.
 
 class IndexView(View):
@@ -75,11 +77,11 @@ class CreateView(View):
                     thumbnail = id
                 # if not an image, use default
                 except:
-                    thumbnail = 'thumbnail'
+                    thumbnail = DEFAULT_THUMBNAIL
             myfile.closed
             f.closed
         except ValidationError as e:
-            print(e)
+            thumbnail = DEFAULT_THUMBNAIL
 
         b = Book(title=title, thumbnail=thumbnail)
         b.save()
