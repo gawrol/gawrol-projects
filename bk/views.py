@@ -42,7 +42,6 @@ class ReadView(View):
                         },
                     },
                 })
-                print(books[b].thumbnail.url)
         return JsonResponse({'books': booksJSON})
 
 class CreateView(View):
@@ -70,10 +69,10 @@ class CreateView(View):
             # open downloaded file 'rb' - r is read, b is binary
             with open(result[0], 'rb') as f:
                 myfile = File(f)
-                x = ImageField()
+                fileValidator = ImageField()
                 # try except if downloaded file is not an image; using to_python method from ImageField class
                 try:
-                    x.to_python(myfile)
+                    fileValidator.to_python(myfile)
                     thumbnail = id
                 # if not an image, use default
                 except:

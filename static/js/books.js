@@ -18,9 +18,12 @@ function queryBooks() {
     const url = 'https://www.googleapis.com/books/v1/volumes?q='+input+'&key='+config.key;
     get(url)
         .then(data => {
-            document.getElementById('queryUl').innerHTML = '';
+            queryUl.innerHTML = '';
+            document.getElementById('queryDiv').classList.remove('hide');
+            queryUl.classList.remove('hide');
             if (data.totalItems == 0) {
                 queryUl.innerHTML = 'No results found';
+                document.getElementById('resultsQuery').classList.add('hide');
                 return;
             }
             query = data.items;
@@ -29,8 +32,7 @@ function queryBooks() {
                 let book = blueprint(query[i], true);
                 queryUl.appendChild(book);
             }
-            document.getElementById('results').classList.remove('hide');
-            queryUl.classList.remove('hide');
+            document.getElementById('resultsQuery').classList.remove('hide');
         })
 }
 
@@ -40,7 +42,13 @@ function queryResults() {
     queryUl.classList.toggle('hide');
 }
 
-clickButtons('results', queryResults);
+clickButtons('resultsQuery', queryResults);
+
+function booksResults() {
+    booksUl.classList.toggle('hide');
+}
+
+clickButtons('resultsBooks', booksResults);
 
 window.addEventListener('load', function () {
     if (window.location.pathname == indexUrlBooks) { 

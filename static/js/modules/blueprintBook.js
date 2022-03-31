@@ -8,6 +8,25 @@ function blueprint(el, query=false) {
     // Div for reading books
     let readDiv = document.createElement('div');
     readDiv.id = 'read' + el.id;
+
+        // Thumbnail 
+        let image = document.createElement('IMG');
+        let imageUrl = new String();
+        if (query) {
+            if (el.volumeInfo.imageLinks == undefined) {
+            }
+            else {
+                image.src = el.volumeInfo.imageLinks.thumbnail;
+                imageUrl = image.src;
+            }
+        } else {
+            image.src = mediaUrlBooks+el.volumeInfo.imageLinks.thumbnail;
+        }
+        image.alt = 'thumbnail';
+        image.width = '100';
+        image.classList.add('img-thumbnail', 'float-end');
+        readDiv.appendChild(image);
+
         // Title text
         let textTitle = document.createElement('p');
         textTitle.id = 'p' + el.id;
@@ -35,24 +54,6 @@ function blueprint(el, query=false) {
         textAuthors.id = 'd' + el.id;
         textAuthors.innerHTML = authorsComma;
         readDiv.appendChild(textAuthors);
-        
-        // Thumbnail 
-        let image = document.createElement('IMG');
-        let imageUrl = new String();
-        if (query) {
-            if (el.volumeInfo.imageLinks == undefined) {
-            }
-            else {
-                image.src = el.volumeInfo.imageLinks.thumbnail;
-                imageUrl = image.src;
-            }
-        } else {
-            image.src = mediaUrlBooks+el.volumeInfo.imageLinks.thumbnail;
-        }
-        image.alt = 'thumbnail';
-        image.height = '100';
-        image.width = '100';
-        readDiv.appendChild(image);
 
         let button = document.createElement('button');
         button.type = 'button'

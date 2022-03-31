@@ -3,22 +3,23 @@
 {% block title %}Book app{% endblock %}
 
 {% block body %}
-    <h1>create</h1>
+    <p>Create</p>
     <input type="text" id="title">
-    <button type="submit" class="btn btn-secondary create">OK</button>
+    <button type="submit" class="btn btn-secondary create">add</button>
 
-    <h2>Search</h2>
+    <p>Search</p>
     <input type="text" id="search">
     <button type="button" class="btn btn-secondary search">search</button>
 
-    <div class="mt-3">
-        <p>query</p>
-        <button type="button" id="results" class="btn btn-secondary results hide">results</button>
+    <div id="queryDiv" class="mt-3 hide">
+        <p>Query</p>
+        <button type="button" id="resultsQuery" class="btn btn-secondary resultsQuery hide">results</button>
         <ul id="queryUl" class="list-group mt-3"></ul>
     </div>
 
     <div class="mt-3">
         <p>Books</p>
-        <ul id="booksUl" class="list-group"></ul>
+        <button type="button" id="resultsBooks" class="btn btn-secondary resultsBooks">results</button>
+        <ul id="booksUl" class="list-group mt-3"></ul>
     </div>
 {% endblock %}
