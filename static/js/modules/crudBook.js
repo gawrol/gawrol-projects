@@ -1,6 +1,6 @@
 import { post } from './fetchBooks.js';
 import { blueprint } from './blueprintBook.js';
-import { books, booksUl } from '../books.js';
+import { books, booksUl, authorsCache } from '../books.js';
 import { clickButtons } from './complementary.js';
 
 function makeId(length) {
@@ -20,8 +20,7 @@ function createBook(event, data={}) {
 
         formData.append('id', makeId(10));
         formData.append('volumeInfo.title', document.getElementById('title').value);
-        const arr = new Array();
-        formData.append('volumeInfo.authors', JSON.stringify(arr));
+        formData.append('volumeInfo.authors', JSON.stringify(authorsCache));
         formData.append('volumeInfo.imageLinks.thumbUrl', '');
         formData.append('volumeInfo.imageLinks.thumbFile', fileField.files[0]);
 

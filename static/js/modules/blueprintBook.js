@@ -55,6 +55,7 @@ function blueprint(el, query=false) {
         textAuthors.innerHTML = authorsComma;
         readDiv.appendChild(textAuthors);
 
+        let form = document.createElement('form');
         let button = document.createElement('button');
         button.type = 'button'
         // Button to add query book to local books
@@ -80,7 +81,9 @@ function blueprint(el, query=false) {
                 deleteBook(null, formData);
             })
         }
-        readDiv.appendChild(button);
+        form.appendChild(button);
+        // readDiv.appendChild(button);
+        readDiv.appendChild(form);
 
     // Add read div to book li
     book.appendChild(readDiv);

@@ -41,11 +41,11 @@ function showError(el, text) {
     }, 200);
 }
 
-function clickButtons(button, method) {
+function clickButtons(button, method, action='click') {
     const collection = document.getElementsByClassName(button);
 
     for (let i = 0; i < collection.length; i++) {
-        collection[i].addEventListener('click', method);
+        collection[i].addEventListener(action, method);
     }
 }
 
