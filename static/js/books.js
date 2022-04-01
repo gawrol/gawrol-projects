@@ -1,4 +1,4 @@
-import { get } from './modules/fetch.js';
+import { get } from './modules/fetchBooks.js';
 import { clickButtons } from './modules/complementary.js';
 import { config } from './config.js';
 import { blueprint } from './modules/blueprintBook.js';
