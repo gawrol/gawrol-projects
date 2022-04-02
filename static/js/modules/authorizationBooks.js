@@ -14,7 +14,7 @@ function registerUser() {
     form.append('user', usernameR);
     form.append('pass', passwordR);
 
-    post(registerUrl, form, 'POST')
+    post(registerUrlBooks, form, 'POST')
         .then(data => {
             if (data.hasOwnProperty('error')) {
                 let errorR = document.getElementById('errorR');
@@ -25,7 +25,7 @@ function registerUser() {
         });
 }
 
-clickButtons('registerButtons', registerUser);
+clickButtons('registerButtonsBooks', registerUser);
 
 function loginUser() {
     let usernameL = document.getElementById('usernameL').value;
@@ -40,7 +40,7 @@ function loginUser() {
     form.append('user', usernameL);
     form.append('pass', passwordL);
 
-    post(loginUrl, form, 'POST')
+    post(loginUrlBooks, form, 'POST')
         .then(data => {
                 if (data.hasOwnProperty('error')) {
                     let errorL = document.getElementById('errorL');
@@ -51,13 +51,14 @@ function loginUser() {
         });
 }
 
-clickButtons('loginButtons', loginUser);
+clickButtons('loginButtonsBooks', loginUser);
 
 function logoutUser() {
-    get(logoutUrl)
+    get(logoutUrlBooks)
         .then(data => {
+            console.log(data.redirect);
             window.location = data.redirect;
         });
 }
 
-clickButtons('logoutButtons', logoutUser);
+clickButtons('logoutButtonsBooks', logoutUser);

@@ -129,8 +129,8 @@ class RegisterView(View):
     def get(self, request):
         return render(request, 'td/register.html')
     def post(self, request):
-        username = json.loads(request.body)['data']['user']
-        password = json.loads(request.body)['data']['pass']
+        username = request.POST.get('user')
+        password = request.POST.get('pass')
         if empty(username) or empty(password):
             return JsonResponse({'error': errorEmpty})
         if user_exists(username):
@@ -145,8 +145,8 @@ class LoginView(View):
     def get(self, request):
         return render(request, 'td/login.html')
     def post(self, request):
-        username = json.loads(request.body)['data']['user']
-        password = json.loads(request.body)['data']['pass']
+        username = request.POST.get('user')
+        password = request.POST.get('pass')
         if empty(username) or empty(password):
             return JsonResponse({'error': errorEmpty})
 

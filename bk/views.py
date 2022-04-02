@@ -10,8 +10,40 @@ import requests
 from io import BytesIO    
 from django.core.files.base import ContentFile
 from bk.models import Author, Book
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
 
 # Create your views here.
+
+errorEmpty = '1 or more characters'
+errorUserExists = 'user with suplied username already exists'
+errorCredentials = 'wrong username or password'
+errorOwner = 'not owner of a task'
+errorTaskExists = 'task desc already exists for current user'
+
+# def login_required(func):
+#     @wraps(func)
+#     def wrapper_login_required(request, *args, **kwargs):
+#         if not request.user.is_authenticated:
+#             return JsonResponse({'login': reverse('td:my_login')})
+#         return func(request, *args, **kwargs)
+#     return wrapper_login_required
+
+def empty(input):
+    if len(input) < 1:
+        return True
+
+# def owner(user, owner):
+#     if user == owner:
+#         return True
+
+# def task_exists(user, desc):
+#     if list(Task.objects.filter(desc__iexact=desc, owner=user).values()):
+#         return True
+
+def user_exists(username):
+    if list(User.objects.filter(username__iexact=username).values()):
+        return True
 
 class IndexView(View):
     def get(self, request):
@@ -120,3 +152,40 @@ class DeleteView(View):
             'id': id,
         }
         return JsonResponse({'book': context})
+
+class RegisterView(View):
+    def get(self, request):
+        return render(request, 'bk/register.html')
+    def post(self, request):
+        username = request.POST.get('user')
+        password = request.POST.get('pass')
+        if empty(username) or empty(password):
+            return JsonResponse({'error': errorEmpty})
+        if user_exists(username):
+            return JsonResponse({'error': errorUserExists})
+
+        user = User.objects.create_user(username, None, password)
+        user.save()
+        login(request, user)
+        return JsonResponse({'redirect': reverse('bk:index'), 'username': user.username})
+
+class LoginView(View):
+    def get(self, request):
+        return render(request, 'bk/login.html')
+    def post(self, request):
+        username = request.POST.get('user')
+        password = request.POST.get('pass')
+        if empty(username) or empty(password):
+            return JsonResponse({'error': errorEmpty})
+
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return JsonResponse({'redirect': reverse('bk:index'), 'username': user.username})
+        else:
+            return JsonResponse({'error': errorCredentials})
+
+class LogoutView(View):
+    def get(self, request):
+        logout(request)
+        return JsonResponse({'redirect': reverse('bk:index')})
