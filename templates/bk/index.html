@@ -32,7 +32,7 @@
             <input type="file" id="thumbFile" class="form-control">
           </div>
         <div class="col-auto">
-            <button type="button" class="btn btn-primary create">Create</button>
+            <button type="button" class="btn btn-outline-primary create">Create</button>
         </div>
     </form>
     
@@ -46,14 +46,14 @@
     </form>
 
     <div id="queryDiv" class="mt-3 hide">
-        <p>Query</p>
-        <button type="button" id="resultsQuery" class="btn btn-secondary resultsQuery hide">results</button>
-        <ul id="queryUl" class="list-group mt-3"></ul>
+        <div class="fw-light">Query</div>
+        <button type="button" id="resultsQuery" class="btn btn-outline-secondary btn-sm resultsQuery hide my-2">results</button>
+        <ul id="queryUl" class="list-inline"></ul>
     </div>
 
     <div class="mt-3">
-        <p>Books</p>
-        <button type="button" id="resultsBooks" class="btn btn-secondary resultsBooks">results</button>
-        <ul id="booksUl" class="list-group mt-3"></ul>
+        <div class="fw-light">Books</div>
+        <button type="button" id="resultsBooks" class="btn btn-outline-secondary btn-sm resultsBooks my-2">results</button>
+        <ul id="booksUl" class="list-inline"></ul>
     </div>
 {% endblock %}

@@ -1,15 +1,21 @@
 import { createBook, deleteBook } from './crudBook.js';
 
+const maxWidth = '150px';
+
 function blueprint(el, query=false) {
     // Create book li element
     let book = document.createElement('li');
     book.id = el.id;
-    book.classList.add('list-group-item', 'list-group-item-action');
-    // Div for reading books
+    book.classList.add('list-inline-item', 'my-2');
+
+    //Div for reading books
     let readDiv = document.createElement('div');
     readDiv.id = 'read' + el.id;
+    // readDiv.classList.add('');
 
         // Thumbnail 
+        let imgDiv = document.createElement('div');
+        // imgDiv.classList.add('');
         let image = document.createElement('IMG');
         let imageUrl = new String();
         if (query) {
@@ -23,15 +29,23 @@ function blueprint(el, query=false) {
             image.src = mediaUrl+el.volumeInfo.imageLinks.thumbnail;
         }
         image.alt = 'thumbnail';
-        image.width = '100';
-        image.classList.add('img-thumbnail', 'float-end');
-        readDiv.appendChild(image);
+        image.style.maxWidth = maxWidth;
+        image.classList.add('img-thumbnail');
+        imgDiv.appendChild(image);
+        readDiv.appendChild(imgDiv);
 
         // Title text
-        let textTitle = document.createElement('p');
-        textTitle.id = 'p' + el.id;
+        let textTitle = document.createElement('div');
+        textTitle.id = 't' + el.id;
         textTitle.innerHTML = el.volumeInfo.title;
+        textTitle.classList.add('text-truncate', 'mt-2');
+        textTitle.style.fontWeight = "200";
+        textTitle.style.maxWidth = maxWidth;
+        textTitle.addEventListener('click', function() {
+            this.classList.toggle('text-truncate');
+        })
         readDiv.appendChild(textTitle);
+
         // Authors dict
         let authors = new Array();
         let authorsComma = new String();
@@ -50,18 +64,25 @@ function blueprint(el, query=false) {
             }
         }
         
-        let textAuthors = document.createElement('p');
-        textAuthors.id = 'd' + el.id;
+        let textAuthors = document.createElement('div');
+        textAuthors.id = 'a' + el.id;
         textAuthors.innerHTML = authorsComma;
+        textAuthors.classList.add('text-truncate', 'mt-2');
+        textAuthors.style.fontWeight = "200";
+        textAuthors.style.maxWidth = maxWidth;
+        textAuthors.addEventListener('click', function() {
+            this.classList.toggle('text-truncate');
+        })
         readDiv.appendChild(textAuthors);
 
         let form = document.createElement('form');
+        // form.classList.add('');
         let button = document.createElement('button');
         button.type = 'button'
         // Button to add query book to local books
         if (query) {
             button.innerHTML = 'Add';
-            button.classList.add('btn', 'btn-primary');
+            button.classList.add('btn', 'btn-outline-primary', 'btn-sm', 'mt-2');
             const formData = new FormData();
             formData.append('id', el.id);
             formData.append('volumeInfo.title', el.volumeInfo.title);
@@ -74,7 +95,7 @@ function blueprint(el, query=false) {
         // Button to delete local book
         if (!query) {
             button.innerHTML = 'Del';
-            button.classList.add('btn', 'btn-danger', 'delete');
+            button.classList.add('btn', 'btn-outline-danger', 'btn-sm', 'delete', 'mt-2');
             const formData = new FormData();
             formData.append('id', el.id);
             button.addEventListener('click', function() {
@@ -82,7 +103,6 @@ function blueprint(el, query=false) {
             })
         }
         form.appendChild(button);
-        // readDiv.appendChild(button);
         readDiv.appendChild(form);
 
     // Add read div to book li
