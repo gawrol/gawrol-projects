@@ -1,6 +1,76 @@
 import { get, post } from './fetchBooks.js';
 import { showError, clickButtons } from './complementary.js';
 
+function registerUserForm() {
+    const authD = document.getElementById('authorizeDiv');
+    const cache = new Array();
+    for (let i=0; i<authD.children.length; i++) {
+        cache.push(authD.children[i]);
+    }
+
+    let form = document.createElement('form');
+    form.classList.add('row');
+    
+        let col = document.createElement('div');
+        col.classList.add('col-5');
+            let input = document.createElement('input');
+            input.id = 'usernameR';
+            input.type = 'text';
+            input.classList.add('form-control');
+            input.placeholder = 'Username...';
+        col.appendChild(input);
+
+        let col2 = document.createElement('div');
+        col2.classList.add('col-5');
+            let input2 = document.createElement('input');
+            input2.id = 'passwordR';
+            input2.type = 'text';
+            input2.classList.add('form-control');
+            input2.placeholder = 'Password...';
+            let error = document.createElement('div');
+            error.id = 'errorR';
+            error.classList.add('text-danger', 'hide');
+        col2.appendChild(input2);
+        col2.appendChild(error);
+
+        let col3 = document.createElement('div');
+        col3.classList.add('col-2');
+            let button = document.createElement('button');
+            button.type = 'button';
+            button.innerHTML = 'OK';
+            button.classList.add('btn', 'btn-outline-primary');
+            button.addEventListener('click', function() {
+                registerUser();
+            })
+        col3.appendChild(button);
+
+    form.appendChild(col);
+    form.appendChild(col2);
+    form.appendChild(col3);
+
+    // authD.innerHTML = '';
+    for (let i=0; i<cache.length; i++) {
+        cache[i].classList.add('hide');
+    }
+    authD.appendChild(form);
+
+    document.addEventListener('click', (e) => {
+        let el = e.target;
+        console.log(el);
+        console.log(document.getElementById('test'));
+        if (authD.contains(el)) {
+        } else {
+            authD.innerHTML = '';
+            for (let y=0; y<cache.length; y++) {
+                authD.appendChild(cache[y]);
+                cache[y].classList.remove('hide');
+            }
+        }
+    })
+}
+
+clickButtons('registerButtonsBooksForm', registerUserForm);
+
 function registerUser() {
     let usernameR = document.getElementById('usernameR').value;
     let passwordR = document.getElementById('passwordR').value;
@@ -25,7 +95,78 @@ function registerUser() {
         });
 }
 
-clickButtons('registerButtonsBooks', registerUser);
+// clickButtons('registerButtonsBooks', registerUser);
+
+function loginUserForm() {
+    const authD = document.getElementById('authorizeDiv');
+    const cache = new Array();
+    for (let i=0; i<authD.children.length; i++) {
+        cache.push(authD.children[i]);
+    }
+
+    let form = document.createElement('form');
+    form.classList.add('row');
+    
+        let col = document.createElement('div');
+        col.classList.add('col-5');
+            let input = document.createElement('input');
+            input.id = 'usernameL';
+            input.type = 'text';
+            input.classList.add('form-control');
+            input.placeholder = 'Username...';
+        col.appendChild(input);
+
+        let col2 = document.createElement('div');
+        col2.classList.add('col-5');
+            let input2 = document.createElement('input');
+            input2.id = 'passwordL';
+            input2.type = 'text';
+            input2.classList.add('form-control');
+            input2.placeholder = 'Password...';
+            let error = document.createElement('div');
+            error.id = 'errorL';
+            error.classList.add('text-danger', 'hide');
+        col2.appendChild(input2);
+        col2.appendChild(error);
+
+        let col3 = document.createElement('div');
+        col3.classList.add('col-2');
+            let button = document.createElement('button');
+            button.type = 'button';
+            button.innerHTML = 'OK';
+            button.classList.add('btn', 'btn-outline-primary');
+            button.addEventListener('click', function() {
+                loginUser();
+            })
+        col3.appendChild(button);
+
+    form.appendChild(col);
+    form.appendChild(col2);
+    form.appendChild(col3);
+
+    // authD.innerHTML = '';
+    for (let i=0; i<cache.length; i++) {
+        cache[i].classList.add('hide');
+    }
+    authD.appendChild(form);
+
+    document.addEventListener('click', (e) => {
+        let el = e.target;
+        console.log(el);
+        console.log(document.getElementById('test'));
+        if (authD.contains(el)) {
+        } else {
+            authD.innerHTML = '';
+            for (let y=0; y<cache.length; y++) {
+                authD.appendChild(cache[y]);
+                cache[y].classList.remove('hide');
+            }
+        }
+    })
+}
+
+clickButtons('loginButtonsBooksForm', loginUserForm);
+
 
 function loginUser() {
     let usernameL = document.getElementById('usernameL').value;
@@ -51,12 +192,11 @@ function loginUser() {
         });
 }
 
-clickButtons('loginButtonsBooks', loginUser);
+// clickButtons('loginButtonsBooks', loginUser);
 
 function logoutUser() {
     get(logoutUrlBooks)
         .then(data => {
-            console.log(data.redirect);
             window.location = data.redirect;
         });
 }
