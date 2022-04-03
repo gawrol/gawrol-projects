@@ -33,9 +33,9 @@ def empty(input):
     if len(input) < 1:
         return True
 
-# def owner(user, owner):
-#     if user == owner:
-#         return True
+def owner(user, owner):
+    if user == owner:
+        return True
 
 # def task_exists(user, desc):
 #     if list(Task.objects.filter(desc__iexact=desc, owner=user).values()):
@@ -51,26 +51,30 @@ class IndexView(View):
 
 class ReadView(View):
     def get(self, request):
-        books = Book.objects.all().order_by('-updated_at')
-        booksValues = list(books.values())
-        booksJSON = list()
-        if booksValues:
-            for b in range(len(booksValues)):
-                authors = list(books[b].authors.all())
-                if authors:
-                    authorsJSON = list()
-                    for a in range(len(authors)):
-                        authorsJSON.append(authors[a].name)
-                booksJSON.append({
-                    'id': booksValues[b]['id'],
-                    'volumeInfo': {
-                        'title': booksValues[b]['title'],
-                        'authors': authorsJSON,
-                        'imageLinks': {
-                            'thumbnail': booksValues[b]['thumbnail'],
+        if request.user.is_authenticated:
+            books = Book.objects.all().filter(owner=request.user).order_by('-updated_at')
+            booksValues = list(books.values())
+            booksJSON = list()
+            if booksValues:
+                for b in range(len(booksValues)):
+                    authors = list(books[b].authors.all())
+                    if authors:
+                        authorsJSON = list()
+                        for a in range(len(authors)):
+                            authorsJSON.append(authors[a].name)
+                    booksJSON.append({
+                        'id': booksValues[b]['id'],
+                        'volumeInfo': {
+                            'title': booksValues[b]['title'],
+                            'authors': authorsJSON,
+                            'authorsDB': list(Author.objects.all().values()),
+                            'imageLinks': {
+                                'thumbnail': booksValues[b]['thumbnail'],
+                            },
                         },
-                    },
-                })
+                    })
+        else:
+            booksJSON = list()
         return JsonResponse({'books': booksJSON})
 
 class CreateView(View):
@@ -120,9 +124,9 @@ class CreateView(View):
                 thumbnail = None
 
         if thumbnail is None:
-            b = Book(title=title)
+            b = Book(owner=User.objects.get_or_create(username='adrian')[0], title=title)
         else:
-            b = Book(title=title, thumbnail=thumbnail)
+            b = Book(owner=User.objects.get_or_create(username='adrian')[0], title=title, thumbnail=thumbnail)
         b.save()
 
         for a in range(len(authors)):

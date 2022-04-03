@@ -1,6 +1,7 @@
 from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import post_save
+from django.conf import settings
 
 # Create your models here.
 
@@ -43,6 +44,7 @@ class Book(models.Model):
     ratingsCount = models.IntegerField(blank=True, null=True)
     language = models.ForeignKey(Language, on_delete=models.SET_DEFAULT, default=unknown_language)
     thumbnail = models.ImageField(upload_to='bk/', default='bk/thumbnail')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

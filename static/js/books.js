@@ -74,11 +74,14 @@ function findAuthors() {
         return;
     }
 
+    const inputWidth = inputAuthors.parentNode.offsetWidth + 'px';
     // console.log(results);
     for (let i=0; i<results.length; i++) {
         let li = document.createElement('li');
         li.classList.add('list-group-item');       
         li.innerHTML = results[i];
+        li.style.width = inputWidth;
+
         authorsUl.appendChild(li);
     }
 
@@ -174,6 +177,7 @@ window.addEventListener('load', function () {
                                 authors.push(books[i].volumeInfo.authors[y]);
                             }
                         }
+                        console.log(books[0].volumeInfo.authorsDB);
                     }
                 }
             })
