@@ -6,7 +6,9 @@ import { blueprint } from './modules/blueprintBook.js';
 // Define uls
 const booksUl = document.getElementById('booksUl');
 const queryUl = document.getElementById('queryUl');
+const userQueryUl = document.getElementById('userQueryUl');
 const authorsUl = document.getElementById('authorsUl');
+const authorsQueryUl = document.getElementById('authorQueryUl');
 const authorsCacheUl = document.getElementById('authorsCacheUl');
 
 const authorsCacheDd = document.getElementById('authorsCacheDd');
@@ -16,9 +18,13 @@ let books = new Array();
 let query = new Array();
 let authors = new Array();
 let authorsCache = new Array();
+let users = new Array();
 
 function queryBooks() {
     let input = document.getElementById('search').value;
+    if (input.length == 0) {
+        return;
+    }
     const url = 'https://www.googleapis.com/books/v1/volumes?q='+input+'&key='+config.key;
     get(url)
         .then(data => {
@@ -132,6 +138,124 @@ function findAuthors() {
 clickButtons('authors', findAuthors, 'keyup');
 clickButtons('authors', findAuthors, 'click');
 
+function queryAuthor() {
+    authorsQueryUl.innerHTML = '';
+
+    const queryAuthors = document.getElementById('authorQuery');
+    if (queryAuthors.value.length == 0) {
+        authorsQueryUl.classList.add('hide');
+        return;
+    }
+
+    const results = authors.filter(findAuthor);
+
+    console.log(results);
+
+    function findAuthor(author) {
+        return author.toLowerCase().includes(queryAuthors.value.toLowerCase());
+    }
+
+    if (results.length == 0) {
+        authorsQueryUl.classList.add('hide');
+        return;
+    }
+
+    const inputWidth = queryAuthors.parentNode.offsetWidth + 'px';
+    // console.log(results);
+    for (let i=0; i<results.length; i++) {
+        let li = document.createElement('li');
+        li.classList.add('list-group-item');       
+        li.innerHTML = results[i];
+        li.style.width = inputWidth;
+
+        authorsQueryUl.appendChild(li);
+    }
+
+    document.addEventListener('click', function detectAuthor(event) {
+        let el = event.target;    
+            if (el == authorsQueryUl || el == queryAuthors) {
+                return;
+            }
+            else {
+                for (let i=0; i<authorsQueryUl.childNodes.length; i++) {
+                    if (el == authorsQueryUl.childNodes[i]) {
+                        get(readUrlBooks, {author: authorsQueryUl.childNodes[i].innerHTML})
+                            .then(data => {
+                                booksUl.innerHTML = '';
+                                if (data.books.length != 0) {
+                                    books = data.books;
+                                    for (let i=0; i<books.length; i++) {
+                                        let book = blueprint(books[i], false);
+                                        booksUl.appendChild(book);
+                                        document.getElementById('resultsBooks').classList.remove('hide');
+                                    }
+                                } else {
+                                    booksUl.innerHTML = 'No matching records for specified query.';
+                                }
+                            })
+                        queryAuthors.value = '';
+                        break;
+                    } else if (el == document.getElementById('authorQueryButton')) {
+                        get(readUrlBooks, {author: queryAuthors.value})
+                            .then(data => {
+                                booksUl.innerHTML = '';
+                                if (data.books.length != 0) {
+                                    books = data.books;
+                                    for (let i=0; i<books.length; i++) {
+                                        let book = blueprint(books[i], false);
+                                        booksUl.appendChild(book);
+                                        document.getElementById('resultsBooks').classList.remove('hide');
+                                    }
+                                } else {
+                                    booksUl.innerHTML = 'No matching records for specified query.';
+                                }
+                            })
+                        queryAuthors.value = '';
+                        break;
+                    }
+                }
+                authorsQueryUl.innerHTML = '';
+                document.removeEventListener('click', detectAuthor);
+                authorsQueryUl.classList.add('hide');
+                return;
+            }
+        })
+
+    authorsQueryUl.classList.remove('hide');
+}
+
+clickButtons('author', queryAuthor, 'keyup');
+clickButtons('author', queryAuthor, 'click');
+
+function queryUser() {
+    const userQuery = document.getElementById('userQuery');
+
+    document.addEventListener('click', function detectUser(event) {
+        let el = event.target;    
+            if (el == document.getElementById('userQueryButton')) {
+                get(readUrlBooks, {user: userQuery.value})
+                    .then(data => {
+                        booksUl.innerHTML = '';
+                        if (data.books.length != 0) {
+                            books = data.books;
+                            for (let i=0; i<books.length; i++) {
+                                let book = blueprint(books[i], false);
+                                booksUl.appendChild(book);
+                                document.getElementById('resultsBooks').classList.remove('hide');
+                            }
+                        } else {
+                            booksUl.innerHTML = 'No matching records for specified query.';
+                        }
+                    })
+                userQuery.value = '';
+                document.removeEventListener('click', detectUser);
+                return;        
+            }
+    })
+}
+
+clickButtons('usero', queryUser, 'click');
+
 function createAuthors() {
     const a = document.getElementById('authors');
     if (!authorsCache.includes(a.value)){
@@ -167,21 +291,33 @@ window.addEventListener('load', function () {
     if (window.location.pathname == indexUrlBooks) { 
         get(readUrlBooks)
             .then(data => {
+                booksUl.innerHTML = '';
                 if (data.books.length != 0) {
                     books = data.books;
                     for (let i=0; i<books.length; i++) {
                         let book = blueprint(books[i], false);
                         booksUl.appendChild(book);
-                        for (let y=0; y<books[i].volumeInfo.authors.length; y++){
-                            if (!authors.includes(books[i].volumeInfo.authors[y])){
-                                authors.push(books[i].volumeInfo.authors[y]);
-                            }
+                        document.getElementById('resultsBooks').classList.remove('hide');
+                        // for (let y=0; y<books[i].volumeInfo.authors.length; y++){
+                        //     if (!authorsQuery.includes(books[i].volumeInfo.authors[y])){
+                        //         authorsQuery.push(books[i].volumeInfo.authors[y]);
+                        //     }
+                        // }
+                    }
+                    for (let y=0; y<books[0].volumeInfo.authorsDB.length; y++){
+                        if (!authors.includes(books[0].volumeInfo.authorsDB[y].name)){
+                            authors.push(books[0].volumeInfo.authorsDB[y].name);
                         }
-                        console.log(books[0].volumeInfo.authorsDB);
+                    }
+                } else {
+                    if (logged.length != 0) {
+                        booksUl.innerHTML = 'No books in your bookshelve.';
+                    } else {
+                        booksUl.innerHTML = 'Please login or register to have access to bookshelve.';
                     }
                 }
             })
     }
 })
 
-export { books, booksUl, authorsCache };
+export { books, booksUl, authors, authorsCache };

@@ -40,7 +40,7 @@
             <div id="authorsHelp" class="form-text">Use 'Add' button for multiple authors.</div>
             <ul id="authorsUl" class="list-group hide position-absolute mt-1" style="z-index: 1000;"></ul>           
             <div class="dropdown mt-2 hide" id="authorsCacheDd">
-                <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
                     authorsCache
                 </button>
                 <ul class="dropdown-menu" id="authorsCacheUl" aria-labelledby="dropdownMenuButton1">
@@ -75,7 +75,27 @@
 
     <div class="mt-3">
         <div class="fw-light">Books</div>
-        <button type="button" id="resultsBooks" class="btn btn-outline-secondary btn-sm resultsBooks my-2">results</button>
-        <ul id="booksUl" class="list-inline"></ul>
+        <div class="row gy-2 gx-3 my-2">
+            <div class="col-auto ">
+                <button type="button" id="resultsBooks" class="btn btn-outline-secondary btn-sm resultsBooks hide">results</button>
+            </div>
+            <div class="col-auto">
+                 <label for="userQuery" class="visually-hidden">User</label>
+                <div class="col-auto input-group input-group-sm">
+                    <input type="text" class="form-control" id="userQuery" aria-label="Query user bookshelves" aria-describedby="userQuery">
+                    <button class="btn btn-outline-secondary usero" type="button" id="userQueryButton">qUser</button>
+                </div>
+                <!-- <ul id="userQueryUl" class="list-group hide position-absolute mt-1" style="z-index: 1000;"></ul>            -->
+            </div>
+            <div class="col-auto">
+                <label for="authorQuery" class="visually-hidden">Author</label>
+                 <div class="input-group input-group-sm">
+                    <input type="text" class="form-control author" id="authorQuery" aria-label="Query author books" aria-describedby="authorQuery">
+                    <button class="btn btn-outline-secondary" type="button" id="authorQueryButton">qAuthor</button>
+                </div>
+                <ul id="authorQueryUl" class="list-group hide position-absolute mt-1" style="z-index: 1000;"></ul>           
+            </div>
+        </div>
+        <ul id="booksUl" class="list-inline"></ul>        
     </div>
 {% endblock %}

@@ -24,7 +24,7 @@ function registerUserForm() {
         col2.classList.add('col-5');
             let input2 = document.createElement('input');
             input2.id = 'passwordR';
-            input2.type = 'text';
+            input2.type = 'password';
             input2.classList.add('form-control');
             input2.placeholder = 'Password...';
             let error = document.createElement('div');
@@ -120,7 +120,7 @@ function loginUserForm() {
         col2.classList.add('col-5');
             let input2 = document.createElement('input');
             input2.id = 'passwordL';
-            input2.type = 'text';
+            input2.type = 'password';
             input2.classList.add('form-control');
             input2.placeholder = 'Password...';
             let error = document.createElement('div');
@@ -152,8 +152,6 @@ function loginUserForm() {
 
     document.addEventListener('click', (e) => {
         let el = e.target;
-        console.log(el);
-        console.log(document.getElementById('test'));
         if (authD.contains(el)) {
         } else {
             authD.innerHTML = '';

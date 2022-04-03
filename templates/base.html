@@ -17,6 +17,7 @@
   {% endblock %}
   {% csrf_token %}
   <script>
+    const logged = '{% if user.is_authenticated %}{{user.username}}{% endif %}';
     const mediaUrl = '{% get_media_prefix %}';
 
     const indexUrlBooks = '{% url 'bk:index' %}';

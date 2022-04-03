@@ -45,17 +45,34 @@ def user_exists(username):
     if list(User.objects.filter(username__iexact=username).values()):
         return True
 
+def query(params):
+    if params.get('user'):
+        try:
+            user = User.objects.get(username__iexact=params.get('user'))
+            books = Book.objects.all().filter(owner=user).order_by('-updated_at')
+        except:
+            books = list()
+        return books
+    if params.get('author'):
+        print(params.get('author'))
+        return Book.objects.all().filter(authors__name__icontains=params.get('author')).order_by('-updated_at')
+
 class IndexView(View):
     def get(self, request):
         return render(request, 'bk/index.html')
 
 class ReadView(View):
     def get(self, request):
+        booksJSON = list()
+
         if request.user.is_authenticated:
-            books = Book.objects.all().filter(owner=request.user).order_by('-updated_at')
-            booksValues = list(books.values())
-            booksJSON = list()
-            if booksValues:
+            if request.GET:
+                books = query(request.GET)
+            else:
+                books = Book.objects.all().filter(owner=request.user).order_by('-updated_at')
+
+            if books:
+                booksValues = list(books.values())
                 for b in range(len(booksValues)):
                     authors = list(books[b].authors.all())
                     if authors:
@@ -74,7 +91,27 @@ class ReadView(View):
                         },
                     })
         else:
-            booksJSON = list()
+            if request.GET:
+                books = query(request.GET)
+                if books:
+                    booksValues = list(books.values())
+                    for b in range(len(booksValues)):
+                        authors = list(books[b].authors.all())
+                        if authors:
+                            authorsJSON = list()
+                            for a in range(len(authors)):
+                                authorsJSON.append(authors[a].name)
+                        booksJSON.append({
+                            'id': booksValues[b]['id'],
+                            'volumeInfo': {
+                                'title': booksValues[b]['title'],
+                                'authors': authorsJSON,
+                                'authorsDB': list(Author.objects.all().values()),
+                                'imageLinks': {
+                                    'thumbnail': booksValues[b]['thumbnail'],
+                                },
+                            },
+                        })
         return JsonResponse({'books': booksJSON})
 
 class CreateView(View):
@@ -93,7 +130,11 @@ class CreateView(View):
         else:
             for a in range(len(authors)):
                 authors[a] = Author.objects.get_or_create(name=authors[a])[0]
-        
+
+        if not request.user.is_authenticated:
+            user = User.objects.get(username='adrian')
+        else:
+            user = request.user
         # try, except - verify if thumbnail URL is valid
         thumbUrlValidator = URLValidator()
         try:
@@ -124,9 +165,9 @@ class CreateView(View):
                 thumbnail = None
 
         if thumbnail is None:
-            b = Book(owner=User.objects.get_or_create(username='adrian')[0], title=title)
+            b = Book(owner=user, title=title)
         else:
-            b = Book(owner=User.objects.get_or_create(username='adrian')[0], title=title, thumbnail=thumbnail)
+            b = Book(owner=user, title=title, thumbnail=thumbnail)
         b.save()
 
         for a in range(len(authors)):

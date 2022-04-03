@@ -2,13 +2,12 @@
 const cookie = document.cookie;
 const csrftoken = cookie.substring(cookie.indexOf('=') + 1);
 
-async function get(url = '') {
-    const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
+async function get(url = '', params = {}) {
+    if (Object.keys(params).length != 0) {
+        url = url + '?' + new URLSearchParams(params);
+    }
+    
+    const response = await fetch(url);
     return response.json();
 }
 
