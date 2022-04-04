@@ -46,7 +46,7 @@ function createBook(event, data={}) {
                     booksUl.innerHTML = '';
                 }
                 booksUl.insertBefore(book, booksUl.children[0]);
-                document.getElementById('resultsBooks').classList.remove('hide');
+                document.getElementById('resultsBooks').parentNode.classList.remove('hide');
                 if (document.getElementById(id)) {
                     document.getElementById(id).remove();
                 }
@@ -78,7 +78,7 @@ function deleteBook(event, data={}) {
                 books.splice(bookIndex, 1);
                 if (books.length == 0) {
                     booksUl.innerHTML = 'No books in your bookshelve.';
-                    document.getElementById('resultsBooks').classList.add('hide');
+                    document.getElementById('resultsBooks').parentNode.classList.add('hide');
                 }
             }
         });

@@ -187,7 +187,7 @@ function queryAuthor() {
                                     for (let i=0; i<books.length; i++) {
                                         let book = blueprint(books[i], false);
                                         booksUl.appendChild(book);
-                                        document.getElementById('resultsBooks').classList.remove('hide');
+                                        document.getElementById('resultsBooks').parentNode.classList.remove('hide');
                                     }
                                 } else {
                                     booksUl.innerHTML = 'No matching records for specified query.';
@@ -204,7 +204,7 @@ function queryAuthor() {
                                     for (let i=0; i<books.length; i++) {
                                         let book = blueprint(books[i], false);
                                         booksUl.appendChild(book);
-                                        document.getElementById('resultsBooks').classList.remove('hide');
+                                        document.getElementById('resultsBooks').parentNode.classList.remove('hide');
                                     }
                                 } else {
                                     booksUl.innerHTML = 'No matching records for specified query.';
@@ -241,7 +241,7 @@ function queryUser() {
                             for (let i=0; i<books.length; i++) {
                                 let book = blueprint(books[i], false);
                                 booksUl.appendChild(book);
-                                document.getElementById('resultsBooks').classList.remove('hide');
+                                document.getElementById('resultsBooks').parentNode.classList.remove('hide');
                             }
                         } else {
                             booksUl.innerHTML = 'No matching records for specified query.';
@@ -297,7 +297,7 @@ window.addEventListener('load', function () {
                     for (let i=0; i<books.length; i++) {
                         let book = blueprint(books[i], false);
                         booksUl.appendChild(book);
-                        document.getElementById('resultsBooks').classList.remove('hide');
+                        document.getElementById('resultsBooks').parentNode.classList.remove('hide');
                         // for (let y=0; y<books[i].volumeInfo.authors.length; y++){
                         //     if (!authorsQuery.includes(books[i].volumeInfo.authors[y])){
                         //         authorsQuery.push(books[i].volumeInfo.authors[y]);
