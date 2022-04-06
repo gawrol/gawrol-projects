@@ -21,7 +21,10 @@ function createBook(event, data={}, source='') {
         formData.append('id', makeId(10));
         let title = document.getElementById('title').value;
         if (title.length == 0) {
-            title = 'NoTitle';
+            // title = 'NoTitle';
+            let errorC = document.getElementById('errorCreate');
+            showError(errorC, "1 or more characters for title.");
+            return;
         }
         formData.append('volumeInfo.title', title);
         if (document.getElementById('authors').value != 0) {
@@ -41,10 +44,12 @@ function createBook(event, data={}, source='') {
                 if (source.length == 0) {
                     let errorC = document.getElementById('errorCreate');
                     showError(errorC, "Please login or register to add a book.");
+                    return;
                 }
                 else if (source == 'query') {
                     let errorC = document.getElementById('errorQuery');
                     showError(errorC, "Please login or register to add a book.");
+                    return;
                 }
             }
             else if (data.book.idCache == id) {
@@ -68,7 +73,7 @@ function createBook(event, data={}, source='') {
                 authorsCache.length = 0;
                 authorsCacheUl.innerHTML = '';
                 authorsCacheDd.classList.add('hide');
-            
+                return;
             }
         });
 }
@@ -83,6 +88,7 @@ function deleteBook(event, data={}) {
             if (data.hasOwnProperty('login')) {
                 let errorD = document.getElementById('errorDelete');
                 showError(errorD, "Please login or register to remove a book.");
+                return;
             }
             else if (data.book.id == id) {
                 const book = document.getElementById(id);
@@ -94,6 +100,7 @@ function deleteBook(event, data={}) {
                     booksUl.innerHTML = 'No books in your bookshelve.';
                     document.getElementById('resultsBooks').parentNode.classList.add('hide');
                 }
+                return;
             }
         });
 }
