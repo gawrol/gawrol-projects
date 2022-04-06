@@ -51,7 +51,7 @@ def query(params):
         except:
             books = list()
         return books
-    if params.get('author'):
+    elif params.get('author'):
         return Book.objects.all().filter(authors__name__icontains=params.get('author')).order_by('-updated_at')
 
 class IndexView(View):
@@ -81,7 +81,6 @@ class ReadView(View):
                         'volumeInfo': {
                             'title': booksValues[b]['title'],
                             'authors': authorsJSON,
-                            'authorsDB': list(Author.objects.all().values()),
                             'imageLinks': {
                                 'thumbnail': booksValues[b]['thumbnail'],
                             },
@@ -103,13 +102,24 @@ class ReadView(View):
                             'volumeInfo': {
                                 'title': booksValues[b]['title'],
                                 'authors': authorsJSON,
-                                'authorsDB': list(Author.objects.all().values()),
                                 'imageLinks': {
                                     'thumbnail': booksValues[b]['thumbnail'],
                                 },
                             },
                         })
-        return JsonResponse({'books': booksJSON})
+        users = list(User.objects.all().values())
+        usersJSON = list()
+        for u in users:
+            usersJSON.append({
+                'username': u['username'],
+            })
+        authors = list(Author.objects.all().values())
+        authorsJSON = list()
+        for a in authors:
+            authorsJSON.append({
+                'name': a['name'],
+            })
+        return JsonResponse({'books': booksJSON, 'users': usersJSON, 'authors': authorsJSON})
 
 @method_decorator(login_required, name='dispatch')
 class CreateView(View):

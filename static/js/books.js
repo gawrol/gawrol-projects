@@ -60,7 +60,7 @@ function booksResults() {
 
 clickButtons('resultsBooks', booksResults);
 
-function findAuthors() {
+function findAuthorsList() {
     authorsUl.innerHTML = '';
 
     const inputAuthors = document.getElementById('authors');
@@ -87,58 +87,45 @@ function findAuthors() {
         li.classList.add('list-group-item');       
         li.innerHTML = results[i];
         li.style.width = inputWidth;
+        li.addEventListener('click', function() {
+            if (!authorsCache.includes(results[i])){
+                authorsCache.push(results[i]);
+            } else {
+                return;
+            }
+            authorsCacheUl.innerHTML = '';
+            // authorsCacheUl.classList.remove('hide');
+            authorsCacheDd.classList.remove('hide');
+            for (let y=0; y<authorsCache.length; y++) {
+                let li2 = document.createElement('li');
+                li2.classList.add('dropdown-item');
+                li2.innerHTML = authorsCache[y];
+                li2.addEventListener('click', function() {
+                    authorsCache.splice(y, 1);
+                    li2.remove();
+                    if (authorsCacheUl.childNodes.length == 0) {
+                        // authorsCacheUl.classList.add('hide');
+                        authorsCacheDd.classList.add('hide');
+                    }
+                })
+                authorsCacheUl.appendChild(li2);
+            }
+            inputAuthors.value = '';
+            authorsUl.innerHTML = '';
+            authorsUl.classList.add('hide');
+        })
 
         authorsUl.appendChild(li);
     }
 
-    document.addEventListener('click', function detectAuthors(event) {
-        let el = event.target;    
-            if (el == authorsUl || el == inputAuthors) {
-                return;
-            }
-            else {
-                for (let i=0; i<authorsUl.childNodes.length; i++) {
-                    if (el == authorsUl.childNodes[i]) {
-                        if (!authorsCache.includes(authorsUl.childNodes[i].innerHTML)){
-                            authorsCache.push(authorsUl.childNodes[i].innerHTML);
-                        } else {
-                            break;
-                        }
-                        authorsCacheUl.innerHTML = '';
-                        // authorsCacheUl.classList.remove('hide');
-                        authorsCacheDd.classList.remove('hide');
-                        for (let y=0; y<authorsCache.length; y++) {
-                            let li = document.createElement('li');
-                            li.classList.add('dropdown-item');
-                            li.innerHTML = authorsCache[y];
-                            li.addEventListener('click', function() {
-                                authorsCache.splice(y, 1);
-                                li.remove();
-                                if (authorsCacheUl.childNodes.length == 0) {
-                                    // authorsCacheUl.classList.add('hide');
-                                    authorsCacheDd.classList.add('hide');
-                                }
-                            })
-                            authorsCacheUl.appendChild(li);
-                        }
-                        inputAuthors.value = '';
-                        break;
-                    }
-                }
-                authorsUl.innerHTML = '';
-                document.removeEventListener('click', detectAuthors);
-                authorsUl.classList.add('hide');
-                return;
-            }
-        })
-
     authorsUl.classList.remove('hide');
+    cancelList(authorsUl, inputAuthors);
 }
 
-clickButtons('authors', findAuthors, 'keyup');
-clickButtons('authors', findAuthors, 'click');
+clickButtons('authors', findAuthorsList, 'keyup');
+clickButtons('authors', findAuthorsList, 'click');
 
-function queryAuthor() {
+function queryAuthorlist() {
     authorsQueryUl.innerHTML = '';
 
     const queryAuthors = document.getElementById('authorQuery');
@@ -148,8 +135,6 @@ function queryAuthor() {
     }
 
     const results = authors.filter(findAuthor);
-
-    console.log(results);
 
     function findAuthor(author) {
         return author.toLowerCase().includes(queryAuthors.value.toLowerCase());
@@ -161,71 +146,153 @@ function queryAuthor() {
     }
 
     const inputWidth = queryAuthors.parentNode.offsetWidth + 'px';
-    // console.log(results);
     for (let i=0; i<results.length; i++) {
         let li = document.createElement('li');
         li.classList.add('list-group-item');       
         li.innerHTML = results[i];
         li.style.width = inputWidth;
+        li.addEventListener('click', function() {
+            get(readUrlBooks, {author: authorsQueryUl.childNodes[i].innerHTML})
+                .then(data => {
+                    booksUl.innerHTML = '';
+                    if (data.books.length != 0) {
+                        books = data.books;
+                        for (let i=0; i<books.length; i++) {
+                            let book = blueprint(books[i], false);
+                            booksUl.appendChild(book);
+                            document.getElementById('resultsBooks').parentNode.classList.remove('hide');
+                        }
+                    } else {
+                        booksUl.innerHTML = 'No matching records for specified query.';
+                    }
+                    queryAuthors.value = '';
+                    authorsQueryUl.innerHTML = '';
+                    authorsQueryUl.classList.add('hide');
+                })
+        })
 
         authorsQueryUl.appendChild(li);
     }
-
-    document.addEventListener('click', function detectAuthor(event) {
-        let el = event.target;    
-            if (el == authorsQueryUl || el == queryAuthors) {
-                return;
-            }
-            else {
-                for (let i=0; i<authorsQueryUl.childNodes.length; i++) {
-                    if (el == authorsQueryUl.childNodes[i]) {
-                        get(readUrlBooks, {author: authorsQueryUl.childNodes[i].innerHTML})
-                            .then(data => {
-                                booksUl.innerHTML = '';
-                                if (data.books.length != 0) {
-                                    books = data.books;
-                                    for (let i=0; i<books.length; i++) {
-                                        let book = blueprint(books[i], false);
-                                        booksUl.appendChild(book);
-                                        document.getElementById('resultsBooks').parentNode.classList.remove('hide');
-                                    }
-                                } else {
-                                    booksUl.innerHTML = 'No matching records for specified query.';
-                                }
-                            })
-                        queryAuthors.value = '';
-                        break;
-                    } else if (el == document.getElementById('authorQueryButton')) {
-                        get(readUrlBooks, {author: queryAuthors.value})
-                            .then(data => {
-                                booksUl.innerHTML = '';
-                                if (data.books.length != 0) {
-                                    books = data.books;
-                                    for (let i=0; i<books.length; i++) {
-                                        let book = blueprint(books[i], false);
-                                        booksUl.appendChild(book);
-                                        document.getElementById('resultsBooks').parentNode.classList.remove('hide');
-                                    }
-                                } else {
-                                    booksUl.innerHTML = 'No matching records for specified query.';
-                                }
-                            })
-                        queryAuthors.value = '';
-                        break;
-                    }
-                }
-                authorsQueryUl.innerHTML = '';
-                document.removeEventListener('click', detectAuthor);
-                authorsQueryUl.classList.add('hide');
-                return;
-            }
-        })
-
     authorsQueryUl.classList.remove('hide');
+    cancelList(authorsQueryUl, queryAuthors);
 }
 
-clickButtons('author', queryAuthor, 'keyup');
-clickButtons('author', queryAuthor, 'click');
+clickButtons('author', queryAuthorlist, 'keyup');
+clickButtons('author', queryAuthorlist, 'click');
+
+function queryAuthor() {
+    const queryAuthors = document.getElementById('authorQuery');
+
+    document.addEventListener('click', function detectAuthor(event) {
+        let el = event.target;   
+        if (el == document.getElementById('authorQueryButton')) {
+
+            get(readUrlBooks, {author: queryAuthors.value})
+                .then(data => {
+                    booksUl.innerHTML = '';
+                    if (data.books.length != 0) {
+                        books = data.books;
+                        for (let i=0; i<books.length; i++) {
+                            let book = blueprint(books[i], false);
+                            booksUl.appendChild(book);
+                            document.getElementById('resultsBooks').parentNode.classList.remove('hide');
+                        }
+                    } else {
+                        booksUl.innerHTML = 'No matching records for specified query.';
+                    }
+                    queryAuthors.value = '';
+                    authorsQueryUl.innerHTML = '';
+                    authorsQueryUl.classList.add('hide');
+                })
+            document.removeEventListener('click', detectAuthor);
+            return;
+        }    
+    })
+}
+
+clickButtons('createAuthorQuery', queryAuthor, 'click');
+
+function queryUserlist() {
+    userQueryUl.innerHTML = '';
+
+    const queryUsers = document.getElementById('userQuery');
+    if (queryUsers.value.length == 0) {
+        userQueryUl.classList.add('hide');
+        return;
+    }
+
+    const results = users.filter(findUser);
+
+    function findUser(user) {
+        return user.toLowerCase().includes(queryUsers.value.toLowerCase());
+    }
+
+    if (results.length == 0) {
+        userQueryUl.classList.add('hide');
+        return;
+    }
+
+    const inputWidth = queryUsers.parentNode.offsetWidth + 'px';
+    for (let i=0; i<results.length; i++) {
+        let li = document.createElement('li');
+        li.classList.add('list-group-item');       
+        li.innerHTML = results[i];
+        li.style.width = inputWidth;
+        li.addEventListener('click', function() {
+            get(readUrlBooks, {user: userQueryUl.childNodes[i].innerHTML})
+                .then(data => {
+                    booksUl.innerHTML = '';
+                    if (data.books.length != 0) {
+                        books = data.books;
+                        for (let i=0; i<books.length; i++) {
+                            let book = blueprint(books[i], false);
+                            booksUl.appendChild(book);
+                            document.getElementById('resultsBooks').parentNode.classList.remove('hide');
+                        }
+                    } else {
+                        booksUl.innerHTML = 'No matching records for specified query.';
+                    }
+                    queryUsers.value = '';
+                    userQueryUl.innerHTML = '';
+                    userQueryUl.classList.add('hide');
+                })
+        })
+
+        userQueryUl.appendChild(li);
+    }
+    userQueryUl.classList.remove('hide');
+    cancelList(userQueryUl, queryUsers);
+}
+
+clickButtons('usero', queryUserlist, 'keyup');
+clickButtons('usero', queryUserlist, 'click');
+
+function cancelList(list, input) {
+    if (list.getAttribute('listener') !== 'true') {
+        list.setAttribute('listener', 'true');
+        document.addEventListener('click', function detectList(event) {
+            let el = event.target; 
+            let x = 0;  
+            for (let i=0; i<list.childNodes.length; i++) {
+                if (el == list.childNodes[i]) {
+                    x++;
+                }
+            }
+            if (el == input) {
+                x++;
+            }
+
+            if (x == 0) {
+                list.innerHTML = '';
+                list.classList.add('hide');
+                list.removeAttribute('listener');
+                document.removeEventListener('click', detectList);
+                return;
+            }
+                
+        })
+    }
+}
 
 function queryUser() {
     const userQuery = document.getElementById('userQuery');
@@ -254,7 +321,7 @@ function queryUser() {
     })
 }
 
-clickButtons('usero', queryUser, 'click');
+clickButtons('createUserQuery', queryUser, 'click');
 
 function createAuthors() {
     const a = document.getElementById('authors');
@@ -304,16 +371,21 @@ window.addEventListener('load', function () {
                         //     }
                         // }
                     }
-                    for (let y=0; y<books[0].volumeInfo.authorsDB.length; y++){
-                        if (!authors.includes(books[0].volumeInfo.authorsDB[y].name)){
-                            authors.push(books[0].volumeInfo.authorsDB[y].name);
-                        }
-                    }
                 } else {
                     if (logged.length != 0) {
                         booksUl.innerHTML = 'No books in your bookshelve.';
                     } else {
                         booksUl.innerHTML = 'Please login or register to have access to bookshelve.';
+                    }
+                }
+                for (let y=0; y<data.authors.length; y++){
+                    if (!authors.includes(data.authors[y].name)){
+                        authors.push(data.authors[y].name);
+                    }
+                }
+                for (let z=0; z<data.users.length; z++){
+                    if (!users.includes(data.users[z].username)){
+                        users.push(data.users[z].username);
                     }
                 }
             })
