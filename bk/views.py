@@ -12,6 +12,8 @@ from django.core.files.base import ContentFile
 from bk.models import Author, Book
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+from functools import wraps
+from django.utils.decorators import method_decorator
 
 # Create your views here.
 
@@ -21,13 +23,13 @@ errorCredentials = 'wrong username or password'
 errorOwner = 'not owner of a task'
 errorTaskExists = 'task desc already exists for current user'
 
-# def login_required(func):
-#     @wraps(func)
-#     def wrapper_login_required(request, *args, **kwargs):
-#         if not request.user.is_authenticated:
-#             return JsonResponse({'login': reverse('td:my_login')})
-#         return func(request, *args, **kwargs)
-#     return wrapper_login_required
+def login_required(func):
+    @wraps(func)
+    def wrapper_login_required(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return JsonResponse({'login': reverse('td:my_login')})
+        return func(request, *args, **kwargs)
+    return wrapper_login_required
 
 def empty(input):
     if len(input) < 1:
@@ -36,10 +38,6 @@ def empty(input):
 def owner(user, owner):
     if user == owner:
         return True
-
-# def task_exists(user, desc):
-#     if list(Task.objects.filter(desc__iexact=desc, owner=user).values()):
-#         return True
 
 def user_exists(username):
     if list(User.objects.filter(username__iexact=username).values()):
@@ -54,7 +52,6 @@ def query(params):
             books = list()
         return books
     if params.get('author'):
-        print(params.get('author'))
         return Book.objects.all().filter(authors__name__icontains=params.get('author')).order_by('-updated_at')
 
 class IndexView(View):
@@ -114,6 +111,7 @@ class ReadView(View):
                         })
         return JsonResponse({'books': booksJSON})
 
+@method_decorator(login_required, name='dispatch')
 class CreateView(View):
     def post(self, request):
         book = request.POST
@@ -186,6 +184,7 @@ class CreateView(View):
         }
         return JsonResponse({'book': context})
 
+@method_decorator(login_required, name='dispatch')
 class DeleteView(View):
     def post(self, request):
         id = request.POST.get('id')

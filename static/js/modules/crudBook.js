@@ -1,7 +1,7 @@
 import { post } from './fetchBooks.js';
 import { blueprint } from './blueprintBook.js';
 import { books, booksUl, authors, authorsCache } from '../books.js';
-import { clickButtons } from './complementary.js';
+import { clickButtons, showError } from './complementary.js';
 
 function makeId(length) {
     let result = '';
@@ -13,7 +13,7 @@ function makeId(length) {
     return result;
 }
 
-function createBook(event, data={}) {
+function createBook(event, data={}, source='') {
     if (event) { 
         const formData = new FormData();
         const fileField = document.getElementById('thumbFile');
@@ -37,7 +37,17 @@ function createBook(event, data={}) {
 
     post(createUrlBooks, data, 'POST')
         .then(data => {
-            if (data.book.idCache == id) {
+            if (data.hasOwnProperty('login')) {
+                if (source.length == 0) {
+                    let errorC = document.getElementById('errorCreate');
+                    showError(errorC, "Please login or register to add a book.");
+                }
+                else if (source == 'query') {
+                    let errorC = document.getElementById('errorQuery');
+                    showError(errorC, "Please login or register to add a book.");
+                }
+            }
+            else if (data.book.idCache == id) {
                 let book = blueprint(data.book, false);
                 if (books.length > 0) {
                     books.unshift(data.book);
@@ -70,7 +80,11 @@ function deleteBook(event, data={}) {
 
     post(deleteUrlBooks, data, 'POST')
         .then(data => {
-            if (data.book.id == id) {
+            if (data.hasOwnProperty('login')) {
+                let errorD = document.getElementById('errorDelete');
+                showError(errorD, "Please login or register to remove a book.");
+            }
+            else if (data.book.id == id) {
                 const book = document.getElementById(id);
                 book.remove();
                 const objectId = id;

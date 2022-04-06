@@ -55,6 +55,9 @@
         <div class="col-auto">
             <button type="button" class="btn btn-outline-primary create">Create</button>
         </div>
+        <div class="col-12">
+            <div id="errorCreate" class="text-danger hide mt-1"></div>
+        </div>
     </form>
     
     <form class="row gy-2 gx-3 mt-3">
@@ -70,6 +73,7 @@
     <div id="queryDiv" class="mt-3 hide">
         <div class="fw-light">Query</div>
         <button type="button" id="resultsQuery" class="btn btn-outline-secondary btn-sm resultsQuery hide my-2">results</button>
+        <div id="errorQuery" class="text-danger hide my-1"></div>
         <ul id="queryUl" class="list-inline"></ul>
     </div>
 
@@ -96,6 +100,7 @@
                 <ul id="authorQueryUl" class="list-group hide position-absolute mt-1" style="z-index: 1000;"></ul>           
             </div>
         </div>
+        <div id="errorDelete" class="text-danger hide my-1"></div>
         <ul id="booksUl" class="list-inline"></ul>        
     </div>
 {% endblock %}

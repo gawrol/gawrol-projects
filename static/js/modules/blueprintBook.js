@@ -89,7 +89,7 @@ function blueprint(el, query=false) {
             formData.append('volumeInfo.authors', JSON.stringify(authors));
             formData.append('volumeInfo.imageLinks.thumbUrl', imageUrl);
             button.addEventListener('click', function() {
-                createBook(null, formData);
+                createBook(null, formData, 'query');
             })
         }
         // Button to delete local book

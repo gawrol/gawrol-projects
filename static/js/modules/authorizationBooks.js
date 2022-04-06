@@ -27,11 +27,7 @@ function registerUserForm() {
             input2.type = 'password';
             input2.classList.add('form-control');
             input2.placeholder = 'Password...';
-            let error = document.createElement('div');
-            error.id = 'errorR';
-            error.classList.add('text-danger', 'hide');
         col2.appendChild(input2);
-        col2.appendChild(error);
 
         let col3 = document.createElement('div');
         col3.classList.add('col-2');
@@ -44,9 +40,17 @@ function registerUserForm() {
             })
         col3.appendChild(button);
 
+        let col4 = document.createElement('div');
+        col4.classList.add('col');
+            let error = document.createElement('div');
+            error.id = 'errorR';
+            error.classList.add('text-danger', 'hide');
+        col4.appendChild(error);
+
     form.appendChild(col);
     form.appendChild(col2);
     form.appendChild(col3);
+    form.appendChild(col4);
 
     // authD.innerHTML = '';
     for (let i=0; i<cache.length; i++) {
@@ -123,11 +127,8 @@ function loginUserForm() {
             input2.type = 'password';
             input2.classList.add('form-control');
             input2.placeholder = 'Password...';
-            let error = document.createElement('div');
-            error.id = 'errorL';
-            error.classList.add('text-danger', 'hide');
+            
         col2.appendChild(input2);
-        col2.appendChild(error);
 
         let col3 = document.createElement('div');
         col3.classList.add('col-2');
@@ -140,9 +141,17 @@ function loginUserForm() {
             })
         col3.appendChild(button);
 
+        let col4 = document.createElement('div');
+        col4.classList.add('col');
+            let error = document.createElement('div');
+            error.id = 'errorL';
+            error.classList.add('text-danger', 'hide');
+        col4.appendChild(error);
+
     form.appendChild(col);
     form.appendChild(col2);
     form.appendChild(col3);
+    form.appendChild(col4);
 
     // authD.innerHTML = '';
     for (let i=0; i<cache.length; i++) {
