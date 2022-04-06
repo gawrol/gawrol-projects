@@ -3,9 +3,11 @@ const cookie = document.cookie;
 const csrftoken = cookie.substring(cookie.indexOf('=') + 1);
 
 async function get(url = '', params = {}) {
-    if (Object.keys(params).length != 0) {
-        url = url + '?' + new URLSearchParams(params);
+    if (Object.keys(params).length == 0) {
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        params = Object.fromEntries(urlSearchParams.entries());
     }
+    url = url + '?' + new URLSearchParams(params);
     
     const response = await fetch(url);
     return response.json();

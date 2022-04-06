@@ -154,6 +154,13 @@ function queryAuthorlist() {
         li.addEventListener('click', function() {
             get(readUrlBooks, {author: authorsQueryUl.childNodes[i].innerHTML})
                 .then(data => {
+                    // const nextURL = indexUrlBooks+'?author='+authorsQueryUl.childNodes[i].innerHTML;
+                    // // const nextTitle = 'My new page title';
+                    // const nextTitle = '';
+                    // const nextState = { additionalInformation: 'Updated the URL with JS' };
+                    // // This will create a new entry in the browser's history, without reloading
+                    // window.history.pushState(nextState, nextTitle, nextURL);
+
                     booksUl.innerHTML = '';
                     if (data.books.length != 0) {
                         books = data.books;
@@ -168,6 +175,7 @@ function queryAuthorlist() {
                     queryAuthors.value = '';
                     authorsQueryUl.innerHTML = '';
                     authorsQueryUl.classList.add('hide');
+                    document.getElementById('resetQuery').classList.remove('hide');
                 })
         })
 
@@ -203,6 +211,7 @@ function queryAuthor() {
                     queryAuthors.value = '';
                     authorsQueryUl.innerHTML = '';
                     authorsQueryUl.classList.add('hide');
+                    document.getElementById('resetQuery').classList.remove('hide'); 
                 })
             document.removeEventListener('click', detectAuthor);
             return;
@@ -255,6 +264,7 @@ function queryUserlist() {
                     queryUsers.value = '';
                     userQueryUl.innerHTML = '';
                     userQueryUl.classList.add('hide');
+                    document.getElementById('resetQuery').classList.remove('hide');
                 })
         })
 
@@ -316,6 +326,7 @@ function queryUser() {
                     })
                 userQuery.value = '';
                 document.removeEventListener('click', detectUser);
+                document.getElementById('resetQuery').classList.remove('hide');
                 return;        
             }
     })
@@ -354,6 +365,39 @@ function createAuthors() {
 
 clickButtons('createAuthor', createAuthors);
 
+function resetQuery() {
+    getBooks();
+    document.getElementById('resetQuery').classList.add('hide');
+}
+
+clickButtons('resetQuery', resetQuery);
+
+function getBooks() {
+    get(readUrlBooks)
+        .then(data => {
+            booksUl.innerHTML = '';
+            if (data.books.length != 0) {
+                books = data.books;
+                for (let i=0; i<books.length; i++) {
+                    let book = blueprint(books[i], false);
+                    booksUl.appendChild(book);
+                    document.getElementById('resultsBooks').parentNode.classList.remove('hide');
+                    // for (let y=0; y<books[i].volumeInfo.authors.length; y++){
+                    //     if (!authorsQuery.includes(books[i].volumeInfo.authors[y])){
+                    //         authorsQuery.push(books[i].volumeInfo.authors[y]);
+                    //     }
+                    // }
+                }
+            } else {
+                if (logged.length != 0) {
+                    booksUl.innerHTML = 'No books in your bookshelve.';
+                } else {
+                    booksUl.innerHTML = 'Please login or register to have access to bookshelve, but you can query books from DB.';
+                }
+            }
+    })
+}
+
 window.addEventListener('load', function () {
     if (window.location.pathname == indexUrlBooks) { 
         get(readUrlBooks)
@@ -375,7 +419,7 @@ window.addEventListener('load', function () {
                     if (logged.length != 0) {
                         booksUl.innerHTML = 'No books in your bookshelve.';
                     } else {
-                        booksUl.innerHTML = 'Please login or register to have access to bookshelve.';
+                        booksUl.innerHTML = 'Please login or register to have access to bookshelve, but you can query books from DB.';
                     }
                 }
                 for (let y=0; y<data.authors.length; y++){
@@ -388,7 +432,7 @@ window.addEventListener('load', function () {
                         users.push(data.users[z].username);
                     }
                 }
-            })
+        })
     }
 })
 
