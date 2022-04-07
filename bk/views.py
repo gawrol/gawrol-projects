@@ -20,8 +20,7 @@ from django.utils.decorators import method_decorator
 errorEmpty = '1 or more characters'
 errorUserExists = 'user with suplied username already exists'
 errorCredentials = 'wrong username or password'
-errorOwner = 'not owner of a task'
-errorTaskExists = 'task desc already exists for current user'
+errorOwner = 'not owner of a book'
 
 def login_required(func):
     @wraps(func)
@@ -44,15 +43,21 @@ def user_exists(username):
         return True
 
 def query(params):
+    books = list()
+    fail = False
     if params.get('user'):
         try:
             user = User.objects.get(username__iexact=params.get('user'))
             books = Book.objects.all().filter(owner=user).order_by('-updated_at')
         except:
-            books = list()
-        return books
-    elif params.get('author'):
-        return Book.objects.all().filter(authors__name__icontains=params.get('author')).order_by('-updated_at')
+            fail = True
+    if params.get('author'):
+        if type(books) is not list:
+            books = books.filter(authors__name__icontains=params.get('author')).order_by('-updated_at')
+        else:
+            if not fail:
+                books = Book.objects.all().filter(authors__name__icontains=params.get('author')).order_by('-updated_at')
+    return books
 
 class IndexView(View):
     def get(self, request):
@@ -200,6 +205,8 @@ class DeleteView(View):
         id = request.POST.get('id')
 
         b = Book.objects.get(pk=id)
+        if not owner(b.owner, request.user):
+            return JsonResponse({'error': errorOwner})
         b.delete()
 
         context = {

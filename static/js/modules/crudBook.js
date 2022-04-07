@@ -1,6 +1,6 @@
 import { post } from './fetchBooks.js';
 import { blueprint } from './blueprintBook.js';
-import { books, booksUl, authors, authorsCache } from '../books.js';
+import { books, booksUl, authors, authorsCache, resetQuery } from '../books.js';
 import { clickButtons, showError } from './complementary.js';
 
 function makeId(length) {
@@ -53,6 +53,8 @@ function createBook(event, data={}, source='') {
                 }
             }
             else if (data.book.idCache == id) {
+                resetQuery();
+
                 let book = blueprint(data.book, false);
                 if (books.length > 0) {
                     books.unshift(data.book);
@@ -88,6 +90,11 @@ function deleteBook(event, data={}) {
             if (data.hasOwnProperty('login')) {
                 let errorD = document.getElementById('errorDelete');
                 showError(errorD, "Please login or register to remove a book.");
+                return;
+            }
+            else if (data.hasOwnProperty('error')) {
+                let errorD = document.getElementById('errorDelete');
+                showError(errorD, "Can't remove someone else's book.");
                 return;
             }
             else if (data.book.id == id) {

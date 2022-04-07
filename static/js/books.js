@@ -26,7 +26,7 @@ function queryBooks() {
         return;
     }
     const url = 'https://www.googleapis.com/books/v1/volumes?q='+input+'&key='+config.key;
-    get(url)
+    get(url, 'true')
         .then(data => {
             queryUl.innerHTML = '';
             document.getElementById('queryDiv').classList.remove('hide');
@@ -152,15 +152,8 @@ function queryAuthorlist() {
         li.innerHTML = results[i];
         li.style.width = inputWidth;
         li.addEventListener('click', function() {
-            get(readUrlBooks, {author: authorsQueryUl.childNodes[i].innerHTML})
+            get(readUrlBooks+'?author='+authorsQueryUl.childNodes[i].innerHTML)
                 .then(data => {
-                    // const nextURL = indexUrlBooks+'?author='+authorsQueryUl.childNodes[i].innerHTML;
-                    // // const nextTitle = 'My new page title';
-                    // const nextTitle = '';
-                    // const nextState = { additionalInformation: 'Updated the URL with JS' };
-                    // // This will create a new entry in the browser's history, without reloading
-                    // window.history.pushState(nextState, nextTitle, nextURL);
-
                     booksUl.innerHTML = '';
                     if (data.books.length != 0) {
                         books = data.books;
@@ -195,7 +188,7 @@ function queryAuthor() {
         let el = event.target;   
         if (el == document.getElementById('authorQueryButton')) {
 
-            get(readUrlBooks, {author: queryAuthors.value})
+            get(readUrlBooks+'?author='+queryAuthors.value)
                 .then(data => {
                     booksUl.innerHTML = '';
                     if (data.books.length != 0) {
@@ -248,7 +241,7 @@ function queryUserlist() {
         li.innerHTML = results[i];
         li.style.width = inputWidth;
         li.addEventListener('click', function() {
-            get(readUrlBooks, {user: userQueryUl.childNodes[i].innerHTML})
+            get(readUrlBooks+'?user='+userQueryUl.childNodes[i].innerHTML)
                 .then(data => {
                     booksUl.innerHTML = '';
                     if (data.books.length != 0) {
@@ -310,7 +303,7 @@ function queryUser() {
     document.addEventListener('click', function detectUser(event) {
         let el = event.target;    
             if (el == document.getElementById('userQueryButton')) {
-                get(readUrlBooks, {user: userQuery.value})
+                get(readUrlBooks+'?user='+userQuery.value)
                     .then(data => {
                         booksUl.innerHTML = '';
                         if (data.books.length != 0) {
@@ -366,7 +359,13 @@ function createAuthors() {
 clickButtons('createAuthor', createAuthors);
 
 function resetQuery() {
-    getBooks();
+    const nextURL = indexUrlBooks;
+    // const nextTitle = 'My new page title';
+    const nextTitle = '';
+    const nextState = { additionalInformation: 'Updated the URL with JS' };
+    // This will create a new entry in the browser's history, without reloading
+    window.history.pushState(nextState, nextTitle, nextURL);
+    setTimeout(getBooks(), 1000);
     document.getElementById('resetQuery').classList.add('hide');
 }
 
@@ -395,45 +394,26 @@ function getBooks() {
                     booksUl.innerHTML = 'Please login or register to have access to bookshelve, but you can query books from DB.';
                 }
             }
+            for (let y=0; y<data.authors.length; y++){
+                if (!authors.includes(data.authors[y].name)){
+                    authors.push(data.authors[y].name);
+                }
+            }
+            for (let z=0; z<data.users.length; z++){
+                if (!users.includes(data.users[z].username)){
+                    users.push(data.users[z].username);
+                }
+            }
     })
 }
 
 window.addEventListener('load', function () {
     if (window.location.pathname == indexUrlBooks) { 
-        get(readUrlBooks)
-            .then(data => {
-                booksUl.innerHTML = '';
-                if (data.books.length != 0) {
-                    books = data.books;
-                    for (let i=0; i<books.length; i++) {
-                        let book = blueprint(books[i], false);
-                        booksUl.appendChild(book);
-                        document.getElementById('resultsBooks').parentNode.classList.remove('hide');
-                        // for (let y=0; y<books[i].volumeInfo.authors.length; y++){
-                        //     if (!authorsQuery.includes(books[i].volumeInfo.authors[y])){
-                        //         authorsQuery.push(books[i].volumeInfo.authors[y]);
-                        //     }
-                        // }
-                    }
-                } else {
-                    if (logged.length != 0) {
-                        booksUl.innerHTML = 'No books in your bookshelve.';
-                    } else {
-                        booksUl.innerHTML = 'Please login or register to have access to bookshelve, but you can query books from DB.';
-                    }
-                }
-                for (let y=0; y<data.authors.length; y++){
-                    if (!authors.includes(data.authors[y].name)){
-                        authors.push(data.authors[y].name);
-                    }
-                }
-                for (let z=0; z<data.users.length; z++){
-                    if (!users.includes(data.users[z].username)){
-                        users.push(data.users[z].username);
-                    }
-                }
-        })
+        getBooks();
+        if (window.location.search) {
+            document.getElementById('resetQuery').classList.remove('hide');
+        }
     }
 })
 
-export { books, booksUl, authors, authorsCache };
+export { books, booksUl, authors, authorsCache, resetQuery };
