@@ -1,5 +1,30 @@
-import { get, post } from './fetchBooks.js';
-import { showError, clickButtons } from './complementary.js';
+import { get, post } from './modules/fetchBooks.js';
+import { showError, clickButtons } from './modules/complementary.js';
+
+function actionUrl(action='logout') {
+    if (appName == 'bk') {
+        if (action == 'register') {
+            return registerUrlBooks;
+        }
+        else if (action == 'login') {
+            return loginUrlBooks;
+        }
+        else if (action == 'logout') {
+            return logoutUrlBooks;
+        }
+    }
+    else if (appName == 'td') {
+        if (action == 'register') {
+            return registerUrl;
+        }
+        else if (action == 'login') {
+            return loginUrl;
+        }
+        else if (action == 'logout') {
+            return logoutUrl;
+        }
+    }
+}
 
 function registerUserForm() {
     const authD = document.getElementById('authorizeDiv');
@@ -52,7 +77,6 @@ function registerUserForm() {
     form.appendChild(col3);
     form.appendChild(col4);
 
-    // authD.innerHTML = '';
     for (let i=0; i<cache.length; i++) {
         cache[i].classList.add('hide');
     }
@@ -60,8 +84,6 @@ function registerUserForm() {
 
     document.addEventListener('click', (e) => {
         let el = e.target;
-        console.log(el);
-        console.log(document.getElementById('test'));
         if (authD.contains(el)) {
         } else {
             authD.innerHTML = '';
@@ -73,7 +95,7 @@ function registerUserForm() {
     })
 }
 
-clickButtons('registerButtonsBooksForm', registerUserForm);
+clickButtons('registerButtonsForm', registerUserForm);
 
 function registerUser() {
     let usernameR = document.getElementById('usernameR').value;
@@ -84,11 +106,13 @@ function registerUser() {
         return;
     }
 
+    const url = actionUrl('register');
+
     const form = new FormData();
     form.append('user', usernameR);
     form.append('pass', passwordR);
 
-    post(registerUrlBooks, form, 'POST')
+    post(url, form, 'POST')
         .then(data => {
             if (data.hasOwnProperty('error')) {
                 let errorR = document.getElementById('errorR');
@@ -98,8 +122,6 @@ function registerUser() {
             } 
         });
 }
-
-// clickButtons('registerButtonsBooks', registerUser);
 
 function loginUserForm() {
     const authD = document.getElementById('authorizeDiv');
@@ -153,7 +175,6 @@ function loginUserForm() {
     form.appendChild(col3);
     form.appendChild(col4);
 
-    // authD.innerHTML = '';
     for (let i=0; i<cache.length; i++) {
         cache[i].classList.add('hide');
     }
@@ -172,8 +193,7 @@ function loginUserForm() {
     })
 }
 
-clickButtons('loginButtonsBooksForm', loginUserForm);
-
+clickButtons('loginButtonsForm', loginUserForm);
 
 function loginUser() {
     let usernameL = document.getElementById('usernameL').value;
@@ -184,11 +204,13 @@ function loginUser() {
         return;
     }
 
+    const url = actionUrl('login');
+
     const form = new FormData();
     form.append('user', usernameL);
     form.append('pass', passwordL);
 
-    post(loginUrlBooks, form, 'POST')
+    post(url, form, 'POST')
         .then(data => {
                 if (data.hasOwnProperty('error')) {
                     let errorL = document.getElementById('errorL');
@@ -199,13 +221,13 @@ function loginUser() {
         });
 }
 
-// clickButtons('loginButtonsBooks', loginUser);
-
 function logoutUser() {
-    get(logoutUrlBooks)
+    const url = actionUrl('logout');
+
+    get(url)
         .then(data => {
             window.location = data.redirect;
         });
 }
 
-clickButtons('logoutButtonsBooks', logoutUser);
+clickButtons('logoutButtons', logoutUser);
