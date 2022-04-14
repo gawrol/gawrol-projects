@@ -365,7 +365,10 @@ function resetQuery() {
     const nextState = { additionalInformation: 'Updated the URL with JS' };
     // This will create a new entry in the browser's history, without reloading
     window.history.pushState(nextState, nextTitle, nextURL);
-    setTimeout(getBooks(), 1000);
+
+        // setTimeout(getBooks(), 1000);
+        getBooks();
+
     document.getElementById('resetQuery').classList.add('hide');
 }
 
@@ -381,11 +384,6 @@ function getBooks() {
                     let book = blueprint(books[i], false);
                     booksUl.appendChild(book);
                     document.getElementById('resultsBooks').parentNode.classList.remove('hide');
-                    // for (let y=0; y<books[i].volumeInfo.authors.length; y++){
-                    //     if (!authorsQuery.includes(books[i].volumeInfo.authors[y])){
-                    //         authorsQuery.push(books[i].volumeInfo.authors[y]);
-                    //     }
-                    // }
                 }
             } else {
                 if (logged.length != 0) {

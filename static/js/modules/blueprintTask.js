@@ -10,7 +10,7 @@ function blueprint(el) {
     let readDiv = document.createElement('div');
     readDiv.id = 'read' + el.id;
         // Inner text
-        let text = document.createElement('p');
+        let text = document.createElement('div');
         text.id = 'p' + el.id;
         text.innerHTML = el.desc;
         readDiv.appendChild(text);
@@ -84,7 +84,7 @@ function blueprint(el) {
         // Add update div to task li
         task.appendChild(updateDiv);
     // Error element
-    let errorT = document.createElement('p');
+    let errorT = document.createElement('div');
     errorT.id = 'errorT' + el.id;
     errorT.classList.add('hide', 'text-warning', 'mt-2');
     task.appendChild(errorT);

@@ -53,24 +53,28 @@ function createBook(event, data={}, source='') {
                 }
             }
             else if (data.book.idCache == id) {
-                resetQuery();
-
-                let book = blueprint(data.book, false);
-                if (books.length > 0) {
-                    books.unshift(data.book);
+                let urlCache = window.location.search;
+                if (urlCache.length != 0) {
+                    resetQuery();
                 } else {
-                    books.push(data.book);
-                    booksUl.innerHTML = '';
-                }
-                booksUl.insertBefore(book, booksUl.children[0]);
-                document.getElementById('resultsBooks').parentNode.classList.remove('hide');
+                    let book = blueprint(data.book, false);
+                    if (books.length > 0) {
+                        books.unshift(data.book);
+                    } else {
+                        books.push(data.book);
+                        booksUl.innerHTML = '';
+                    }
+                    booksUl.insertBefore(book, booksUl.children[0]);
+                    document.getElementById('resultsBooks').parentNode.classList.remove('hide');         
+                    for (let y=0; y<data.book.volumeInfo.authors.length; y++){
+                        if (!authors.includes(data.book.volumeInfo.authors[y])){
+                            authors.push(data.book.volumeInfo.authors[y]);
+                        }
+                    }
+                } 
+
                 if (document.getElementById(id)) {
                     document.getElementById(id).remove();
-                }
-                for (let y=0; y<data.book.volumeInfo.authors.length; y++){
-                    if (!authors.includes(data.book.volumeInfo.authors[y])){
-                        authors.push(data.book.volumeInfo.authors[y]);
-                    }
                 }
                 authorsCache.length = 0;
                 authorsCacheUl.innerHTML = '';
